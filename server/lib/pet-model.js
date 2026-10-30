@@ -42,7 +42,8 @@ export function mealTimesOf(pet) {
   }
   return defaultTimes(pet.meals_per_day);
 }
-const oneDecimal = (n) => Math.round(n * 10) / 10;
+// Trunca (não arredonda): 5,97 dias é "5 dias", como no aviso da loja; arredondar para 6,0 faria a tela mostrar um dia a mais.
+const oneDecimal = (n) => Math.floor(n * 10) / 10;
 
 export function serializePet(pet, at) {
   const status = stockStatus(pet, at);

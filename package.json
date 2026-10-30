@@ -10,12 +10,16 @@
   "scripts": {
     "start": "node --env-file-if-exists=.env server/index.js",
     "dev": "node --watch --env-file-if-exists=.env server/index.js",
-    "test": "node --test \"test/**/*.test.js\""
+    "test": "node --test \"test/**/*.test.js\"",
+    "preview": "node preview/build.mjs"
   },
   "dependencies": {
     "better-sqlite3": "^12.0.0",
     "express": "^5.1.0",
     "nodemailer": "^10.3.1",
     "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
   }
 }

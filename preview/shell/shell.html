@@ -1,0 +1,65 @@
+<div class="shell" id="shell">
+  <header class="top">
+    <span class="top__logo" id="logo"></span>
+    <div class="top__title">
+      <b>Pré-visualização interativa</b>
+      <span>Use o app como tutor ou como loja. Os dados são fictícios e ficam só neste navegador.</span>
+    </div>
+    <div class="top__btns">
+      <button class="btn btn--sm btn--dark" id="openLeft" type="button">Controles</button>
+      <button class="btn btn--sm" id="openRight" type="button">Mensagens <i id="badge" class="count" hidden></i></button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <aside class="panel panel--left" id="left" aria-label="Controles da pré-visualização">
+      <button class="panel__close" data-close type="button" aria-label="Fechar">×</button>
+
+      <section class="block">
+        <h2>Começar por</h2>
+        <p class="hint">Cada botão recarrega o app em uma situação pronta.</p>
+        <div class="grid2" id="scenarios"></div>
+      </section>
+
+      <section class="block">
+        <h2>Ir direto para uma tela</h2>
+        <div id="screens"></div>
+      </section>
+
+      <section class="block">
+        <h2>Viagem no tempo</h2>
+        <p class="hint">A ração diminui com os dias. Avance o relógio do app e veja os avisos chegarem.</p>
+        <p class="clock" id="clock"></p>
+        <div class="chips" id="timeBtns"></div>
+      </section>
+
+      <section class="block">
+        <h2>Dados do exemplo</h2>
+        <dl class="creds">
+          <dt>Tutora de exemplo</dt><dd>maria@example.com<br />senha12345</dd>
+          <dt>Painel da loja</dt><dd>senha: loja123</dd>
+        </dl>
+        <button class="btn btn--sm btn--soft" id="resetAll" type="button">Apagar tudo e recomeçar</button>
+      </section>
+    </aside>
+
+    <section class="device" aria-label="Celular com o app">
+      <div class="device__top">
+        <div class="seg" id="sizes" role="group" aria-label="Tamanho da tela"></div>
+        <div class="seg" id="docs" role="group" aria-label="O que visualizar"></div>
+      </div>
+      <div class="device__wrap" id="wrap">
+        <div class="phone" id="phone"><iframe id="screen" title="PetLee"></iframe></div>
+      </div>
+    </section>
+
+    <aside class="panel panel--right" id="right" aria-label="Mensagens, tarefas e anotações">
+      <button class="panel__close" data-close type="button" aria-label="Fechar">×</button>
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div id="tab-mail" class="tabpane"></div>
+      <div id="tab-tasks" class="tabpane" hidden></div>
+      <div id="tab-notes" class="tabpane" hidden></div>
+    </aside>
+  </main>
+  <div class="scrim" id="scrim" hidden></div>
+</div>

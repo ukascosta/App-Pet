@@ -17,11 +17,28 @@ Precisa de Node 22 ou mais novo.
 npm install
 cp .env.example .env     # ajuste o nome e o WhatsApp da loja
 npm start                # http://localhost:3000
-npm test                 # 76 testes
+npm test                 # 77 testes
 ```
 
 - App do tutor: `http://localhost:3000`
 - Painel da loja: `http://localhost:3000/loja` (senha = `STORE_ADMIN_PASSWORD`; se estiver vazia em desenvolvimento, uma senha é gerada e mostrada no terminal)
+
+## Pré-visualização interativa (sem instalar nada)
+
+O arquivo [`preview/petlee-preview.html`](preview/petlee-preview.html) mostra o app funcionando. É só **abrir com duplo clique** no Chrome, Edge, Firefox ou Safari; não precisa de servidor, internet ou `npm install`.
+
+Ele traz o app real dentro de uma moldura de celular, com uma API simulada no próprio arquivo (os cálculos de porção, rotina, estoque e avisos usam os mesmos módulos do servidor), e:
+
+- **Cenários prontos**: conta nova, já tenho conta, tutora com 2 pets, ração acabando, ração acabou, login com Google.
+- **Atalhos para cada tela**, inclusive a abertura animada e o painel da loja.
+- **Viagem no tempo**: avance 1, 3, 7 ou 14 dias e veja a ração diminuir e os avisos chegarem.
+- **Mensagens simuladas**: o WhatsApp que a loja receberia, os e-mails (com o link de "esqueci a senha" clicável) e os pushes. Nada é enviado de verdade.
+- **Login com Google e Facebook simulado** e três tamanhos de tela (320, 390 e 430 px).
+- **Roteiro de teste de usabilidade** com 8 tarefas e um bloco de anotações que pode ser baixado em `.txt`.
+
+Os dados são fictícios e ficam só no navegador (as senhas ali **não** são protegidas: não digite senhas reais). Conta de exemplo: `maria@example.com` / `senha12345`; painel da loja: `loja123`.
+
+Depois de mudar o app, gere o arquivo de novo com `npm run preview` (usa o `esbuild`, que está só em `devDependencies`).
 
 ## Telas
 
@@ -149,6 +166,7 @@ public/                 PWA (HTML + JS puro, sem build)
   brand/ fonts/ icons/  logo, fontes e ícones do app
   js/art.js, icons.js   ilustrações e ícones
 test/                   testes (node --test)
+preview/                gerador da pré-visualização (API simulada, moldura e petlee-preview.html)
 ```
 
 ## Variáveis de ambiente

@@ -39,3 +39,15 @@ test('settle fixa o estoque de agora sem mudar a previsão', () => {
   assert.equal(Math.round(settled.stock_g), 2400);
   assert.equal(stockStatus(settled, later + DAY_MS).stockG, stockStatus(pet(), later + DAY_MS).stockG);
 });
+
+test('os dias restantes da API são truncados (5,97 dias não viram 6), como no aviso da loja', async () => {
+  const { serializePet } = await import('../server/lib/pet-model.js');
+  const pet = {
+    id: 1, name: 'Thor', species: 'dog', breed_id: 'labrador', breed_name: 'Labrador', adult_kg: 30, color: 'Preto', birth_at: T0 - 800 * DAY_MS,
+    weight_kg: null, neutered: 1, kcal_per_kg: null, meals_per_day: 2, meal_times: null, monthly_purchase_g: 9000, daily_mode: 'custom',
+    daily_g: 300, stock_g: 1791, stock_at: T0, alert_days: 7,
+  };
+  const out = serializePet(pet, T0);
+  assert.equal(out.stock.daysLeft, 5.9); // 1791 / 300 = 5,97
+  assert.equal(Math.floor(out.stock.daysLeft), 5);
+});

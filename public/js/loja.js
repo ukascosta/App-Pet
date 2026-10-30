@@ -74,7 +74,7 @@ function leadCard(l) {
       ${raw(petAvatar({ species: l.pet.species, color: l.pet.color }))}
       <div class="grow">
         <h3>${l.customer.name}</h3>
-        <div class="muted small"><span class="nowrap">${l.customer.whatsapp}</span> · ${l.customer.email}</div>
+        <div class="muted small nowrap">${l.customer.whatsapp}</div><div class="muted small" style="overflow-wrap:anywhere">${l.customer.email}</div>
       </div>
       <span class="badge badge--${l.kind}">${l.kind === 'empty' ? 'Acabou' : 'Acabando'}</span>
     </div>
