@@ -1,7 +1,7 @@
 {
   "name": "app-pet",
   "version": "0.1.0",
-  "description": "Controle de ração para cães e gatos, com aviso automático para o tutor e para a loja via WhatsApp.",
+  "description": "PetLee: controle de ração para cães e gatos, com aviso automático para o tutor e para a loja via WhatsApp.",
   "private": true,
   "type": "module",
   "engines": {

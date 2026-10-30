@@ -1,15 +1,19 @@
 import { Router } from 'express';
 import { BREEDS, breedsOf, findBreed } from '../data/breeds.js';
+import { MAX_MEALS, defaultTimes } from '../lib/feeding.js';
 import { recommend } from '../lib/nutrition.js';
 import { HttpError, bool, number, oneOf } from '../lib/validate.js';
 
-export function publicRoutes({ config, push }) {
+export function publicRoutes({ config, push, oauth }) {
   const router = Router();
 
   router.get('/config', (_req, res) => {
     res.json({
       store: { name: config.store.name, whatsapp: config.store.whatsapp },
       vapidPublicKey: push.publicKey,
+      // Horários padrão para cada quantidade de refeições (fonte única, usada pela tela de rotina).
+      feeding: { times: Object.fromEntries(Array.from({ length: MAX_MEALS }, (_, i) => [i + 1, defaultTimes(i + 1)])) },
+      auth: { google: oauth.isEnabled('google'), facebook: oauth.isEnabled('facebook'), preview: !config.isProd },
     });
   });
 
@@ -37,6 +41,7 @@ export function publicRoutes({ config, push }) {
         weightKg: number(b.weightKg, 'weightKg', 'o peso', { min: 0.3, max: 120, optional: true }) ?? undefined,
         neutered: bool(b.neutered, true),
         kcalPerKg: number(b.kcalPerKg, 'kcalPerKg', 'a energia da ração', { min: 2500, max: 5500, optional: true }) ?? undefined,
+        deepChested: breed.deepChested ?? false,
       }),
     );
   });

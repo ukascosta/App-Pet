@@ -1,9 +1,12 @@
 // Painel da loja: pedidos de reposição gerados quando a ração de um cliente está acabando.
 
-import { html, fmtDays, fmtKg, fmtWhen, speciesEmoji } from './util.js';
-import { toast } from './ui.js';
+import { logoHorizontalSvg } from './brand.js';
+import { petAvatar } from './art.js';
+import { icon } from './icons.js';
+import { control, field, toast } from './ui.js';
+import { fmtDays, fmtKg, fmtWhen, html, raw } from './util.js';
 
-const KEY = 'apppet.storekey';
+const KEY = 'petlee.storekey';
 const root = document.getElementById('app');
 let storeKey = null;
 try {
@@ -31,12 +34,19 @@ async function call(method, path, body) {
 
 function loginScreen(message = '') {
   clearInterval(timer);
-  root.innerHTML = html`<main class="page stack">
-    <div class="hero"><div class="art" aria-hidden="true">🏪</div><h1>Painel da loja</h1><p class="muted">Entre com a senha da loja para ver os clientes que precisam de ração.</p></div>
-    <form class="stack" novalidate>
-      <label class="field"><span class="label">Senha</span><input class="input ${message ? 'invalid' : ''}" type="password" name="key" autocomplete="current-password" required /><span class="error" role="alert">${message}</span></label>
-      <button class="btn block" type="submit">Entrar</button>
-    </form>
+  root.innerHTML = html`<main class="page page--bare">
+    <header class="auth-hero auth-hero--compact">
+      <span class="logo">${raw(logoHorizontalSvg())}</span>
+      <h1>Painel da loja</h1>
+      <p>Veja quem está com a ração acabando.</p>
+    </header>
+    <div class="auth-card">
+      <form class="stack" novalidate>
+        ${field('key', 'Senha da loja', control({ name: 'key', type: 'password', icon: 'lock', autocomplete: 'current-password' }))}
+        <span class="field__error" role="alert">${message}</span>
+        <button class="btn btn--block" type="submit">Entrar</button>
+      </form>
+    </div>
   </main>`.toString();
   root.querySelector('form').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -46,40 +56,40 @@ function loginScreen(message = '') {
 }
 
 const FILTERS = [['open', 'Para atender'], ['sold', 'Vendidos'], ['closed', 'Encerrados']];
-const KIND = { low: ['low', 'Acabando'], empty: ['empty', 'Acabou'] };
+const STATUS = { new: 'Novo', contacted: 'Contatado', sold: 'Vendido', closed: 'Encerrado' };
 
 function deliveryLabel(d) {
   if (!d) return '';
-  if (d.status === 'sent') return '✅ Aviso automático enviado ao WhatsApp da loja';
-  if (d.status === 'skipped') return 'ℹ️ WhatsApp automático desligado: atenda por aqui';
-  if (d.status === 'failed') return `⚠️ Aviso automático falhou (${d.error}). Atenda por aqui.`;
-  return `⏳ Enviando aviso automático${d.error ? ` (tentando de novo: ${d.error})` : ''}`;
+  if (d.status === 'sent') return ['check', 'Aviso automático enviado ao WhatsApp da loja'];
+  if (d.status === 'skipped') return ['info', 'WhatsApp automático desligado: atenda por aqui'];
+  if (d.status === 'failed') return ['warn', `Aviso automático falhou (${d.error}). Atenda por aqui.`];
+  return ['clock', `Enviando aviso automático${d.error ? ` (tentando de novo: ${d.error})` : ''}`];
 }
 
 function leadCard(l) {
-  const [cls, label] = KIND[l.kind];
   const open = l.status === 'new' || l.status === 'contacted';
-  return html`<article class="card stack ${l.kind === 'empty' ? 'empty' : 'low'}" data-lead="${l.id}">
+  const delivery = deliveryLabel(l.delivery);
+  return html`<article class="card stack ${l.kind === 'empty' ? 'card--empty' : 'card--alert'}" data-lead="${l.id}">
     <div class="row">
-      <div class="avatar ${l.pet.species}" aria-hidden="true">${speciesEmoji(l.pet.species)}</div>
+      ${raw(petAvatar({ species: l.pet.species, color: l.pet.color }))}
       <div class="grow">
         <h3>${l.customer.name}</h3>
-        <div class="muted small"><span style="white-space:nowrap">${l.customer.whatsapp}</span> · ${l.customer.email}</div>
+        <div class="muted small"><span class="nowrap">${l.customer.whatsapp}</span> · ${l.customer.email}</div>
       </div>
-      <span class="badge ${cls}">${label}</span>
+      <span class="badge badge--${l.kind}">${l.kind === 'empty' ? 'Acabou' : 'Acabando'}</span>
     </div>
-    <div class="stats">
-      <div class="stat"><b>${l.pet.name}</b><span>${l.pet.breed} · ${l.pet.color}</span></div>
-      <div class="stat"><b>${l.kind === 'empty' ? 'Sem ração' : fmtDays(l.daysLeft)}</b><span>${fmtWhen(l.createdAt)}</span></div>
-      <div class="stat"><b>${fmtKg(l.suggestedKg)}</b><span>compra mensal do cliente</span></div>
-      <div class="stat"><b>${l.status === 'contacted' ? 'Contatado' : l.status === 'new' ? 'Novo' : l.status === 'sold' ? 'Vendido' : 'Encerrado'}</b><span>situação</span></div>
+    <div class="tiles">
+      <div class="tile"><b>${l.pet.name}</b><span>${l.pet.breed} · ${l.pet.color}</span></div>
+      <div class="tile"><b>${l.kind === 'empty' ? 'Sem ração' : fmtDays(l.daysLeft)}</b><span>${fmtWhen(l.createdAt)}</span></div>
+      <div class="tile"><b>${fmtKg(l.suggestedKg)}</b><span>compra mensal do cliente</span></div>
+      <div class="tile"><b>${STATUS[l.status]}</b><span>situação</span></div>
     </div>
-    <p class="small muted">${deliveryLabel(l.delivery)}</p>
+    ${delivery ? html`<p class="small muted row" style="gap:8px;align-items:flex-start">${raw(icon(delivery[0], 17))}<span>${delivery[1]}</span></p>` : ''}
     ${open
-      ? html`<a class="btn accent block" href="${l.whatsappLink}" target="_blank" rel="noopener" data-contact>💬 Chamar no WhatsApp</a>
-          <label class="field"><span class="sr-only">Anotação</span><input class="input" data-note placeholder="Anotação (ex.: pedido de 10 kg para sexta)" value="${l.note}" maxlength="300" /></label>
-          <div class="input-row"><button class="btn small" data-status="sold">Vendido</button><button class="btn small secondary" data-status="closed">Encerrar</button></div>`
-      : l.note ? html`<p class="small">📝 ${l.note}</p>` : ''}
+      ? html`<a class="btn btn--block" style="background:var(--mint)" href="${l.whatsappLink}" target="_blank" rel="noopener" data-contact>${raw(icon('chat', 20))}Chamar no WhatsApp</a>
+          <div class="control"><input class="control__input" data-note placeholder="Anotação (ex.: pedido de 10 kg para sexta)" aria-label="Anotação" value="${l.note}" maxlength="300" /></div>
+          <div class="row"><button class="btn btn--dark btn--sm grow" data-status="sold">Vendido</button><button class="btn btn--soft btn--sm grow" data-status="closed">Encerrar</button></div>`
+      : l.note ? html`<p class="small">${raw(icon('pencil', 15))} ${l.note}</p>` : ''}
   </article>`;
 }
 
@@ -102,17 +112,25 @@ async function load(first = false) {
 
 function draw({ store, counts, leads }) {
   const scrollY = window.scrollY;
-  root.innerHTML = html`<main class="page">
-    <header class="row" style="margin-bottom:6px"><div class="grow"><h1>${store.name}</h1><p class="muted">Clientes com a ração acabando</p></div><button class="btn small ghost" data-logout>Sair</button></header>
-    <div class="chips" role="tablist" style="margin:14px 0">
+  root.innerHTML = html`<main class="page" style="padding-bottom:40px">
+    <header class="pagehead">
+      <span class="logo" style="width:112px;display:block">${raw(logoHorizontalSvg())}</span>
+      <div class="grow"></div>
+      <button class="btn btn--sm btn--ghost" data-logout>${raw(icon('logout', 18))}Sair</button>
+    </header>
+    <section class="card card--dark stack" style="margin-bottom:18px">
+      <div class="eyebrow">${store.name}</div>
+      <div class="row"><b class="display" style="font-size:2.6rem">${counts.open}</b><span class="muted" style="font-weight:700">${counts.open === 1 ? 'cliente para atender' : 'clientes para atender'}</span></div>
+    </section>
+    <div class="chips" role="tablist" style="margin-bottom:16px">
       ${FILTERS.map(([id, label]) => html`<button class="chip" role="tab" data-filter="${id}" aria-pressed="${id === filter}">${label} (${counts[id]})</button>`)}
     </div>
     <div class="stack">
-      ${leads.length ? leads.map(leadCard) : html`<p class="center muted" style="padding:36px 10px">${filter === 'open' ? 'Nenhum cliente para atender agora. 🎉' : 'Nada por aqui.'}</p>`}
+      ${leads.length ? leads.map(leadCard) : html`<p class="center muted" style="padding:36px 10px;font-weight:700">${filter === 'open' ? 'Nenhum cliente para atender agora. 🎉' : 'Nada por aqui.'}</p>`}
     </div>
-    <details style="margin-top:26px"><summary>Configuração</summary>
-      <p class="small muted" style="margin:8px 0">Envia uma mensagem de teste para o WhatsApp da loja usando o provedor configurado no servidor.</p>
-      <button class="btn small secondary" data-test>Enviar mensagem de teste</button>
+    <details style="margin-top:26px"><summary>${raw(icon('next', 18))}Configuração</summary>
+      <p class="small muted" style="margin:8px 4px 12px">Envia uma mensagem de teste para o WhatsApp da loja usando o provedor configurado no servidor.</p>
+      <button class="btn btn--sm btn--soft" data-test>Enviar mensagem de teste</button>
     </details>
   </main>`.toString();
   window.scrollTo(0, scrollY);

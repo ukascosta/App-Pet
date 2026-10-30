@@ -72,8 +72,6 @@ export function maskPhone(value) {
 
 export const normalizeText = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
-export const speciesEmoji = (species) => (species === 'cat' ? '🐱' : '🐶');
-
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
@@ -84,3 +82,36 @@ export const debounce = (fn, ms) => {
     t = setTimeout(() => fn(...args), ms);
   };
 };
+
+// ---------- refeições ----------
+
+/** Próxima refeição a partir de uma lista de horários "HH:MM" (considera o dia seguinte). */
+export function nextMeal(times, now = new Date()) {
+  const current = now.getHours() * 60 + now.getMinutes();
+  let best = null;
+  times.forEach((time, index) => {
+    const [h, m] = time.split(':').map(Number);
+    let diff = h * 60 + m - current;
+    if (diff < 0) diff += 24 * 60;
+    if (!best || diff < best.inMin) best = { time, index, inMin: diff };
+  });
+  return best;
+}
+
+export function fmtIn(min) {
+  if (min < 1) return 'agora';
+  if (min < 60) return `em ${min} min`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m ? `em ${h} h ${m} min` : `em ${h} h`;
+}
+
+/** Nota de 0 a 4 para a força da senha (só orienta; o servidor exige apenas o tamanho mínimo). */
+export function passwordStrength(pw) {
+  if (!pw) return 0;
+  let score = pw.length >= 8 ? 1 : 0;
+  if (pw.length >= 12) score++;
+  if (/[a-z]/i.test(pw) && /\d/.test(pw)) score++;
+  if (/[A-Z]/.test(pw) && /[^\w\s]/.test(pw)) score++;
+  return Math.min(score, 4) || 1;
+}

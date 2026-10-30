@@ -22,9 +22,16 @@ export function loadConfig(env = process.env) {
     throw new Error('STORE_WHATSAPP inválido. Use DDD + número, ex.: 11999998888.');
   }
 
+  const port = int(env.PORT, 3000);
   return {
     isProd,
-    port: int(env.PORT, 3000),
+    port,
+    // Endereço público do app (usado nos links dos e-mails e no retorno do login social).
+    publicUrl: (env.PUBLIC_URL || `http://localhost:${port}`).replace(/\/+$/, ''),
+    auth: {
+      google: { clientId: env.GOOGLE_CLIENT_ID || '', clientSecret: env.GOOGLE_CLIENT_SECRET || '' },
+      facebook: { appId: env.FACEBOOK_APP_ID || '', appSecret: env.FACEBOOK_APP_SECRET || '' },
+    },
     // Atrás de proxy reverso (Nginx, Render, Railway...), use TRUST_PROXY=1 para ver o IP real.
     trustProxy: env.TRUST_PROXY ? int(env.TRUST_PROXY, 1) : false,
     dbPath: env.DATABASE_PATH || 'data/app-pet.db',

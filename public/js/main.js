@@ -1,7 +1,11 @@
 import { api, getToken } from './api.js';
+import { logoVerticalSvg } from './brand.js';
+import { icon } from './icons.js';
+import { artError } from './art.js';
 import { html, raw } from './util.js';
 import { toast } from './ui.js';
-import * as welcome from './views/welcome.js';
+import * as onboarding from './views/onboarding.js';
+import * as auth from './views/auth.js';
 import * as home from './views/home.js';
 import * as pet from './views/pet.js';
 import * as petForm from './views/pet-form.js';
@@ -10,70 +14,116 @@ import * as account from './views/account.js';
 
 const app = { config: null, me: null };
 const root = document.getElementById('app');
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const ICONS = {
-  pets: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="5.5" cy="11" rx="2" ry="2.8"/><ellipse cx="9.5" cy="6.5" rx="2" ry="2.8"/><ellipse cx="14.5" cy="6.5" rx="2" ry="2.8"/><ellipse cx="18.5" cy="11" rx="2" ry="2.8"/><path d="M12 11c-3 0-6 3.4-6 6.2 0 2 1.6 2.8 3.2 2.8 1.2 0 1.8-.5 2.8-.5s1.6.5 2.8.5c1.6 0 3.2-.8 3.2-2.8C18 14.4 15 11 12 11z"/></svg>',
-  alerts: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
-  account: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-};
+// ---------- abertura animada ----------
+
+function splash() {
+  try {
+    if (sessionStorage.getItem('petlee.splash')) return;
+    sessionStorage.setItem('petlee.splash', '1');
+  } catch {
+    /* sem armazenamento: mostra sempre */
+  }
+  const el = document.createElement('div');
+  el.className = 'splash';
+  el.innerHTML = `<div class="splash__logo">${logoVerticalSvg()}</div><p class="splash__tag">Cuidando da ração do seu melhor amigo</p>`;
+  document.body.append(el);
+
+  const leave = () => {
+    el.classList.add('splash--out');
+    setTimeout(() => el.remove(), 550);
+  };
+  const timer = setTimeout(leave, reducedMotion ? 700 : 3000);
+  el.addEventListener('click', () => {
+    clearTimeout(timer);
+    leave();
+  });
+}
+
+// ---------- navegação ----------
 
 function tabbar(active) {
   const unread = app.me?.unreadAlerts ?? 0;
-  const tab = (id, href, label) =>
-    html`<a class="tab" href="${href}" ${active === id ? raw('aria-current="page"') : ''}>
-      ${raw(ICONS[id])}${label}${id === 'alerts' && unread ? html`<span class="dot" aria-label="${unread} novos">${unread}</span>` : ''}
+  const tab = (id, ic, href, label) =>
+    html`<a class="tab" href="${href}" aria-label="${label}" ${active === id ? raw('aria-current="page"') : ''}>
+      ${raw(icon(ic, 22))}<span>${label}</span>${id === 'alerts' && unread ? html`<i class="dot">${unread}</i>` : ''}
     </a>`;
   return html`<div class="tabbar"><nav aria-label="Principal">
-    ${tab('pets', '#/', 'Meus pets')}${tab('alerts', '#/avisos', 'Avisos')}${tab('account', '#/conta', 'Conta')}
+    ${tab('home', 'home', '#/', 'Início')}${tab('alerts', 'bell', '#/avisos', 'Avisos')}${tab('account', 'user', '#/conta', 'Conta')}
   </nav></div>`;
 }
 
-// [padrão da rota, tela, exige login?]
+// [padrão da rota, tela, tipo]: 'public' (sem login), 'auth' (com login), 'any' (os dois)
 const ROUTES = [
-  [/^\/?$/, null, false], // tratado em resolve(): boas-vindas ou início
-  [/^\/cadastro$/, welcome.register, false],
-  [/^\/entrar$/, welcome.login, false],
-  [/^\/novo-pet$/, petForm.create, true],
-  [/^\/pet\/(\d+)$/, pet.detail, true],
-  [/^\/pet\/(\d+)\/editar$/, petForm.edit, true],
-  [/^\/avisos$/, alerts.view, true],
-  [/^\/conta$/, account.view, true],
+  [/^\/?$/, null, 'any'], // início: boas-vindas ou home, conforme o login
+  [/^\/entrar$/, auth.login, 'public'],
+  [/^\/cadastro$/, auth.register, 'public'],
+  [/^\/senha\/esqueci$/, auth.forgot, 'public'],
+  [/^\/senha\/redefinir$/, auth.reset, 'public'],
+  [/^\/oauth$/, auth.oauthReturn, 'public'],
+  [/^\/completar$/, auth.complete, 'auth'],
+  [/^\/novo-pet$/, petForm.create, 'auth'],
+  [/^\/pet\/(\d+)$/, pet.detail, 'auth'],
+  [/^\/pet\/(\d+)\/editar$/, petForm.edit, 'auth'],
+  [/^\/avisos$/, alerts.view, 'auth'],
+  [/^\/conta$/, account.view, 'auth'],
 ];
 
+function currentRoute() {
+  const [path, query = ''] = (location.hash.replace(/^#/, '') || '/').split('?');
+  return { path, query: new URLSearchParams(query) };
+}
+
 let renderId = 0;
+const go = (to) => {
+  location.hash = to;
+};
 
 async function render() {
   const id = ++renderId;
-  const path = location.hash.replace(/^#/, '') || '/';
+  const { path, query } = currentRoute();
   const loggedIn = !!getToken();
 
   const match = ROUTES.find(([pattern]) => pattern.test(path));
-  if (!match) return (location.hash = '#/');
-  const [re, routeView, needsLogin] = match;
+  if (!match) return go('#/');
+  const [pattern, routeView, access] = match;
   let view = routeView;
-  if (!view) view = loggedIn ? home.view : welcome.landing;
-  if (needsLogin && !loggedIn) return (location.hash = '#/entrar');
-  if (!needsLogin && loggedIn && /^\/(cadastro|entrar)$/.test(path)) return (location.hash = '#/');
+
+  if (!view) view = loggedIn ? home.view : onboarding.landing;
+  if (access === 'auth' && !loggedIn) return go('#/entrar');
+  if (access === 'public' && loggedIn && !/^\/(oauth|senha\/redefinir)$/.test(path)) return go('#/');
 
   try {
     if (!app.config) app.config = await api.config();
-    if (loggedIn && (needsLogin || view === home.view)) app.me = await api.me();
-    const params = re.exec(path).slice(1);
-    const result = await view({ app, params, navigate: (to) => (location.hash = to), refresh: render });
+    if (loggedIn && (access === 'auth' || view === home.view)) {
+      app.me = await api.me();
+      // Cadastro com Google/Facebook ainda sem WhatsApp: precisa completar antes de usar o app.
+      if (!app.me.customer.profileComplete && path !== '/completar' && path !== '/conta') return go('#/completar');
+    }
+    const params = pattern.exec(path).slice(1);
+    const result = await view({ app, params, query, navigate: go, refresh: render });
     if (id !== renderId) return; // o usuário já foi para outra tela
 
-    root.innerHTML = `<main class="page">${result.body}</main>${result.tab ? tabbar(result.tab) : ''}`;
+    root.innerHTML = `<main class="page ${result.bare ? 'page--bare' : ''}">${result.body}</main>${result.tab ? tabbar(result.tab) : ''}`;
+    if (result.fab) root.insertAdjacentHTML('beforeend', result.fab.toString());
     window.scrollTo(0, 0);
     result.mount?.(root);
   } catch (err) {
     if (id !== renderId) return;
-    root.innerHTML = html`<main class="page stack center"><h2>Ops!</h2><p class="muted">${err.message}</p><button class="btn" id="retry">Tentar de novo</button></main>`.toString();
+    root.innerHTML = html`<main class="page empty stack">
+      ${raw(artError())}
+      <h2>Ops, algo deu errado</h2>
+      <p>${err.message}</p>
+      <button class="btn" id="retry">Tentar de novo</button>
+    </main>`.toString();
     document.getElementById('retry').onclick = render;
-    if (err.status !== 0 && err.status !== undefined) toast(err.message);
+    if (err.status) toast(err.message);
   }
 }
 
 window.addEventListener('hashchange', render);
+splash();
 render();
 
 if ('serviceWorker' in navigator) {

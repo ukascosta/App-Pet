@@ -31,12 +31,12 @@ describe('cadastro e login', () => {
     assert.equal(dupPhone.status, 409);
   });
 
-  test('entra de novo com e-mail + WhatsApp e recusa dados errados', async () => {
-    const ok = await t.call('POST', '/api/session', { body: { email: 'MARIA@example.com', whatsapp: '11 99999 8888' } });
+  test('entra de novo com e-mail + senha e recusa senha errada', async () => {
+    const ok = await t.call('POST', '/api/session', { body: { email: 'MARIA@example.com', password: 'senha-segura-1' } });
     assert.equal(ok.status, 200);
     const me = await t.call('GET', '/api/me', { token: ok.body.token });
     assert.equal(me.body.customer.name, 'Maria Silva');
-    const wrong = await t.call('POST', '/api/session', { body: { email: 'maria@example.com', whatsapp: '11 90000 0000' } });
+    const wrong = await t.call('POST', '/api/session', { body: { email: 'maria@example.com', password: 'outra-senha-1' } });
     assert.equal(wrong.status, 401);
   });
 

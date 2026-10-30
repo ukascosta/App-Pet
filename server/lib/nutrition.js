@@ -8,6 +8,8 @@
 // É uma referência, não uma prescrição: a embalagem e o veterinário do pet
 // sempre têm a palavra final (a interface avisa isso).
 
+import { suggestFeeding } from './feeding.js';
+
 export const DAY_MS = 86_400_000;
 export const DAYS_PER_MONTH = 30;
 const MONTH_MS = DAY_MS * 30.4375;
@@ -68,12 +70,6 @@ function energyFactor(species, size, stage, ageMonths, neutered) {
   return start + (adultFactor - start) * progress;
 }
 
-function mealsPerDay(ageMonths) {
-  if (ageMonths < 4) return 4;
-  if (ageMonths < 6) return 3;
-  return 2;
-}
-
 const roundTo = (value, step) => Math.round(value / step) * step;
 
 /**
@@ -84,8 +80,9 @@ const roundTo = (value, step) => Math.round(value / step) * step;
  * @param {number} [p.weightKg]   peso atual, se o tutor souber
  * @param {boolean} [p.neutered]
  * @param {number} [p.kcalPerKg]  energia da ração (rótulo da embalagem)
+ * @param {boolean} [p.deepChested] raça de peito profundo (muda a rotina de refeições sugerida)
  */
-export function recommend({ species, adultKg, ageMonths, weightKg, neutered = true, kcalPerKg }) {
+export function recommend({ species, adultKg, ageMonths, weightKg, neutered = true, kcalPerKg, deepChested = false }) {
   const size = sizeOf(species, adultKg);
   const stage = lifeStage(species, size, ageMonths);
   const weightEstimated = !(weightKg > 0);
@@ -97,7 +94,8 @@ export function recommend({ species, adultKg, ageMonths, weightKg, neutered = tr
   const der = rer * factor;
 
   const dailyGrams = Math.max(10, roundTo((der / kcal) * 1000, 5));
-  const meals = mealsPerDay(ageMonths);
+  const schedule = suggestFeeding({ species, size, stage, ageMonths, adultKg, deepChested });
+  const meals = schedule.meals;
 
   return {
     species,
@@ -110,6 +108,7 @@ export function recommend({ species, adultKg, ageMonths, weightKg, neutered = tr
     dailyGrams,
     meals,
     mealGrams: roundTo(dailyGrams / meals, 5),
+    schedule,
     monthlyKg: Math.round(((dailyGrams * DAYS_PER_MONTH) / 1000) * 10) / 10,
   };
 }

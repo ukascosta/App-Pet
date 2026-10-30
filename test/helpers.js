@@ -8,12 +8,13 @@ export const T0 = Date.UTC(2026, 5, 1, 12);
 export const DAY = 86_400_000;
 
 /** App completo com banco em memória, relógio controlável e WhatsApp/e-mail simulados. */
-export async function startTestApp(envOverrides = {}) {
+export async function startTestApp(envOverrides = {}, { fetchFn } = {}) {
   const clock = { t: T0, now: () => clock.t, advanceDays(d) { clock.t += d * DAY; } };
   const config = loadConfig({
     STORE_NAME: 'Pet Shop Teste',
     STORE_WHATSAPP: '(11) 98888-7777',
     STORE_ADMIN_PASSWORD: 'segredo',
+    PUBLIC_URL: 'https://app.petlee.test',
     ...envOverrides,
   });
   const db = openDatabase(':memory:');
@@ -32,32 +33,36 @@ export async function startTestApp(envOverrides = {}) {
     },
   };
   const mailer = { async send(m) { sentEmails.push(m); } };
+  const logs = [];
   const push = createPushService({ db, config });
-  const log = { info() {}, error() {} };
+  const log = { info: (m) => logs.push(m), error: (m) => logs.push(m) };
   const alerts = createAlertService({ db, config, whatsapp, push, mailer, now: clock.now, log });
-  const app = createApp({ config, db, alerts, whatsapp, push, now: clock.now, log });
+  const app = createApp({ config, db, alerts, whatsapp, push, now: clock.now, log, fetchFn });
 
   const server = await new Promise((resolve) => {
     const s = app.listen(0, () => resolve(s));
   });
   const base = `http://127.0.0.1:${server.address().port}`;
 
-  async function call(method, path, { body, token, storeKey } = {}) {
+  async function call(method, path, { body, token, storeKey, headers = {}, raw = false } = {}) {
     const res = await fetch(base + path, {
       method,
+      redirect: 'manual',
       headers: {
+        ...headers,
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(storeKey ? { 'x-store-key': storeKey } : {}),
       },
       body: body ? JSON.stringify(body) : undefined,
     });
+    if (raw) return res;
     const text = await res.text();
     return { status: res.status, body: text ? JSON.parse(text) : null };
   }
 
   return {
-    clock, db, alerts, call, sentWhatsApp, sentEmails, whatsapp, config,
+    clock, db, alerts, call, sentWhatsApp, sentEmails, whatsapp, config, logs, base,
     close: () => new Promise((resolve) => server.close(() => { db.close(); resolve(); })),
   };
 }
@@ -66,6 +71,7 @@ export const validCustomer = (over = {}) => ({
   name: 'Maria Silva',
   email: 'maria@example.com',
   whatsapp: '(11) 99999-8888',
+  password: 'senha-segura-1',
   consent: true,
   ...over,
 });

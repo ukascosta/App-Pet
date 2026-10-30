@@ -152,9 +152,18 @@ const CATS = [
   ['tonquines', 'Tonquinês', 2.5, 5.5],
 ];
 
+// Raças de peito profundo, com maior risco de torção gástrica: precisam dividir a porção em ao menos 2 refeições.
+const DEEP_CHESTED = new Set([
+  'afghan-hound', 'akita', 'basset-hound', 'bernese', 'bloodhound', 'borzoi', 'boxer', 'bullmastiff', 'cane-corso',
+  'dobermann', 'dogo-argentino', 'dogue-alemao', 'galgo-ingles', 'irish-wolfhound', 'leonberger', 'mastiff',
+  'mastim-napolitano', 'mastim-tibetano', 'pastor-alemao', 'pointer-alemao', 'poodle-standard', 'rhodesian',
+  'rottweiler', 'saluki', 'sao-bernardo', 'schnauzer-gigante', 'setter-gordon', 'setter-ingles', 'setter-irlandes',
+  'terra-nova', 'weimaraner', 'srd-grande',
+]);
+
 const toBreed = (species) => ([id, name, minKg, maxKg]) => {
   const adultKg = Math.round(((minKg + maxKg) / 2) * 10) / 10;
-  return { id, name, species, minKg, maxKg, adultKg, size: sizeOf(species, adultKg) };
+  return { id, name, species, minKg, maxKg, adultKg, size: sizeOf(species, adultKg), deepChested: DEEP_CHESTED.has(id) };
 };
 
 // "Outra raça": sem peso típico conhecido, o tutor informa o peso adulto esperado.

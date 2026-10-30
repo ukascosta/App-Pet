@@ -15,7 +15,7 @@ const alerts = createAlertService({ db, config, whatsapp, push, mailer });
 
 const app = createApp({ config, db, alerts, whatsapp, push });
 const server = app.listen(config.port, () => {
-  console.log(`App Pet rodando em http://localhost:${config.port}`);
+  console.log(`PetLee rodando em http://localhost:${config.port}`);
   console.log(`Painel da loja: http://localhost:${config.port}/loja`);
   if (config.store.generatedAdminPassword) {
     console.log(`Senha do painel (gerada agora; defina STORE_ADMIN_PASSWORD para fixar): ${config.store.adminPassword}`);

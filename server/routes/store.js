@@ -81,7 +81,7 @@ export function storeRoutes({ db, config, whatsapp, now }) {
     try {
       await whatsapp.send({
         to: config.store.whatsapp,
-        text: `✅ Teste do App Pet: o aviso de ração acabando chegará neste número (${config.store.name}).`,
+        text: `✅ Teste do PetLee: o aviso de ração acabando chegará neste número (${config.store.name}).`,
         data: { customerName: 'Teste', customerWhatsapp: config.store.whatsapp, petName: 'Teste', daysLabel: '0', kind: 'test', suggestedKg: 0 },
       });
     } catch (err) {

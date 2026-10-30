@@ -1,69 +1,21 @@
-import crypto from 'node:crypto';
 import { Router } from 'express';
 import { findBreed } from '../data/breeds.js';
+import { MAX_MEALS, TIME_PATTERN, defaultTimes } from '../lib/feeding.js';
 import { DAY_MS } from '../lib/nutrition.js';
 import { normalizeWhatsApp } from '../lib/phone.js';
 import { recommendationFor, resolveDailyGrams, serializePet } from '../lib/pet-model.js';
 import { currentStockG } from '../lib/stock.js';
 import { HttpError, bool, email, number, oneOf, text } from '../lib/validate.js';
-import { customerAuth, rateLimit, sha256 } from '../middleware.js';
+import { customerAuth } from '../middleware.js';
+import { publicCustomer } from '../services/auth.js';
 
 const MONTH_MS = DAY_MS * 30.4375;
 const MAX_PETS = 10;
 const DEFAULT_ALERT_DAYS = 7;
 
-const publicCustomer = (c) => ({ id: c.id, name: c.name, email: c.email, whatsapp: c.whatsapp });
-
 export function customerRoutes({ db, alerts, now }) {
   const router = Router();
   const auth = customerAuth(db);
-  const authLimit = rateLimit({ windowMs: 10 * 60_000, max: 20 });
-
-  function startSession(customerId) {
-    const token = crypto.randomBytes(32).toString('base64url');
-    db.prepare('INSERT INTO sessions (token_hash, customer_id, created_at) VALUES (?, ?, ?)').run(sha256(token), customerId, now());
-    return token;
-  }
-
-  // ---------- cadastro e login ----------
-
-  router.post('/customers', authLimit, (req, res) => {
-    const b = req.body ?? {};
-    const name = text(b.name, 'name', 'seu nome', { min: 2, max: 80 });
-    const mail = email(b.email);
-    const whatsapp = normalizeWhatsApp(b.whatsapp);
-    if (!whatsapp) throw new HttpError(400, 'Informe um WhatsApp válido com DDD, ex.: (11) 99999-8888.', 'whatsapp');
-    if (b.consent !== true) {
-      throw new HttpError(400, 'Para avisar você e a loja, precisamos da sua autorização.', 'consent');
-    }
-
-    const clash = db.prepare('SELECT email, whatsapp FROM customers WHERE email = ? OR whatsapp = ?').get(mail, whatsapp);
-    if (clash) {
-      const field = clash.email === mail ? 'e-mail' : 'WhatsApp';
-      throw new HttpError(409, `Já existe um cadastro com este ${field}. Toque em "Já tenho cadastro" para entrar.`, field === 'e-mail' ? 'email' : 'whatsapp');
-    }
-
-    const at = now();
-    const { lastInsertRowid } = db
-      .prepare('INSERT INTO customers (name, email, whatsapp, consent_at, created_at) VALUES (?, ?, ?, ?, ?)')
-      .run(name, mail, whatsapp, at, at);
-    const customer = db.prepare('SELECT * FROM customers WHERE id = ?').get(lastInsertRowid);
-    res.status(201).json({ token: startSession(customer.id), customer: publicCustomer(customer) });
-  });
-
-  router.post('/session', authLimit, (req, res) => {
-    const mail = email(req.body?.email);
-    const whatsapp = normalizeWhatsApp(req.body?.whatsapp);
-    const customer = whatsapp && db.prepare('SELECT * FROM customers WHERE email = ? AND whatsapp = ?').get(mail, whatsapp);
-    if (!customer) throw new HttpError(401, 'Não encontramos um cadastro com esse e-mail e WhatsApp.');
-    res.json({ token: startSession(customer.id), customer: publicCustomer(customer) });
-  });
-
-  router.delete('/session', auth, (req, res) => {
-    db.prepare('DELETE FROM sessions WHERE token_hash = ?').run(req.tokenHash);
-    res.status(204).end();
-  });
-
   // ---------- perfil ----------
 
   const petsOf = (customerId) => db.prepare('SELECT * FROM pets WHERE customer_id = ? ORDER BY id').all(customerId);
@@ -79,9 +31,13 @@ export function customerRoutes({ db, alerts, now }) {
     const name = text(b.name, 'name', 'seu nome', { min: 2, max: 80 });
     const whatsapp = normalizeWhatsApp(b.whatsapp);
     if (!whatsapp) throw new HttpError(400, 'Informe um WhatsApp válido com DDD, ex.: (11) 99999-8888.', 'whatsapp');
+    // Quem entrou com Google/Facebook ainda não deu o aceite de contato da loja.
+    if (!req.customer.consent_at && b.consent !== true) {
+      throw new HttpError(400, 'Para avisar você e a loja, precisamos da sua autorização.', 'consent');
+    }
     const clash = db.prepare('SELECT 1 FROM customers WHERE whatsapp = ? AND id <> ?').get(whatsapp, req.customer.id);
     if (clash) throw new HttpError(409, 'Este WhatsApp já está em uso em outro cadastro.', 'whatsapp');
-    db.prepare('UPDATE customers SET name = ?, whatsapp = ? WHERE id = ?').run(name, whatsapp, req.customer.id);
+    db.prepare('UPDATE customers SET name = ?, whatsapp = ?, consent_at = COALESCE(consent_at, ?) WHERE id = ?').run(name, whatsapp, now(), req.customer.id);
     res.json({ customer: publicCustomer(db.prepare('SELECT * FROM customers WHERE id = ?').get(req.customer.id)) });
   });
 
@@ -125,6 +81,17 @@ export function customerRoutes({ db, alerts, now }) {
       alert_days: Math.round(number(body.alertDays ?? DEFAULT_ALERT_DAYS, 'alertDays', 'os dias de antecedência', { min: 1, max: 30 })),
     };
 
+    // Rotina: quantas vezes e a que horas o tutor costuma alimentar (padrão = sugestão para a raça).
+    const suggested = recommendationFor(pet, at).schedule;
+    pet.meals_per_day = Math.round(number(body.mealsPerDay ?? suggested.meals, 'mealsPerDay', 'quantas refeições por dia', { min: 1, max: MAX_MEALS }));
+    let times = body.mealTimes;
+    if (times === undefined || times === null || times.length === 0) times = defaultTimes(pet.meals_per_day);
+    if (!Array.isArray(times) || times.length !== pet.meals_per_day || !times.every((t) => typeof t === 'string' && TIME_PATTERN.test(t))) {
+      throw new HttpError(400, 'Informe um horário válido para cada refeição.', 'mealTimes');
+    }
+    if (new Set(times).size !== times.length) throw new HttpError(400, 'Os horários das refeições não podem se repetir.', 'mealTimes');
+    pet.meal_times = JSON.stringify([...times].sort());
+
     const customGrams = mode === 'custom' ? number(body.customDailyGrams, 'customDailyGrams', 'quantos gramas por dia', { min: 5, max: 5000 }) : null;
     pet.daily_g = resolveDailyGrams({
       mode,
@@ -153,6 +120,9 @@ export function customerRoutes({ db, alerts, now }) {
 
   router.post('/pets', auth, (req, res) => {
     const at = now();
+    if (!req.customer.whatsapp || !req.customer.consent_at) {
+      throw new HttpError(403, 'Complete seu cadastro (WhatsApp e autorização) antes de adicionar um pet.', 'profile');
+    }
     if (petsOf(req.customer.id).length >= MAX_PETS) throw new HttpError(400, `Limite de ${MAX_PETS} pets por cadastro.`);
     const pet = parsePet(req.body ?? {}, at);
     const stockKg = number(req.body.stockKg ?? req.body.monthlyPurchaseKg, 'stockKg', 'quanto tem de ração em casa', { min: 0, max: 200 });
@@ -160,9 +130,9 @@ export function customerRoutes({ db, alerts, now }) {
     const { lastInsertRowid } = db
       .prepare(
         `INSERT INTO pets (customer_id, name, species, breed_id, breed_name, adult_kg, color, birth_at, weight_kg, neutered,
-                           kcal_per_kg, monthly_purchase_g, daily_mode, daily_g, stock_g, stock_at, alert_days, created_at)
+                           kcal_per_kg, meals_per_day, meal_times, monthly_purchase_g, daily_mode, daily_g, stock_g, stock_at, alert_days, created_at)
          VALUES (@customer_id, @name, @species, @breed_id, @breed_name, @adult_kg, @color, @birth_at, @weight_kg, @neutered,
-                 @kcal_per_kg, @monthly_purchase_g, @daily_mode, @daily_g, @stock_g, @stock_at, @alert_days, @created_at)`,
+                 @kcal_per_kg, @meals_per_day, @meal_times, @monthly_purchase_g, @daily_mode, @daily_g, @stock_g, @stock_at, @alert_days, @created_at)`,
       )
       .run({ ...pet, customer_id: req.customer.id, stock_g: stockKg * 1000, stock_at: at, created_at: at });
     respond(res, lastInsertRowid, 201);
@@ -180,7 +150,7 @@ export function customerRoutes({ db, alerts, now }) {
     db.prepare(
       `UPDATE pets SET name=@name, species=@species, breed_id=@breed_id, breed_name=@breed_name, adult_kg=@adult_kg, color=@color,
                        birth_at=@birth_at, weight_kg=@weight_kg, neutered=@neutered, kcal_per_kg=@kcal_per_kg,
-                       monthly_purchase_g=@monthly_purchase_g, daily_mode=@daily_mode, daily_g=@daily_g,
+                       meals_per_day=@meals_per_day, meal_times=@meal_times, monthly_purchase_g=@monthly_purchase_g, daily_mode=@daily_mode, daily_g=@daily_g,
                        alert_days=@alert_days, stock_g=@stock_g, stock_at=@stock_at
        WHERE id=@id`,
     ).run({ ...pet, id: current.id, stock_g: stockG, stock_at: at });

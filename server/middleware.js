@@ -33,15 +33,16 @@ export function storeAuth(config) {
 }
 
 /** Limite simples por IP (janela fixa, em memória) contra abuso de cadastro/login. */
-export function rateLimit({ windowMs, max }) {
+export function rateLimit({ windowMs, max, key = (req) => req.ip }) {
   const hits = new Map();
   return (req, _res, next) => {
     const now = Date.now();
-    const entry = hits.get(req.ip);
+    const id = key(req);
+    const entry = hits.get(id);
     if (!entry || entry.resetAt <= now) {
-      hits.set(req.ip, { count: 1, resetAt: now + windowMs });
+      hits.set(id, { count: 1, resetAt: now + windowMs });
       // limpeza oportunista
-      if (hits.size > 5000) for (const [ip, e] of hits) if (e.resetAt <= now) hits.delete(ip);
+      if (hits.size > 5000) for (const [k, e] of hits) if (e.resetAt <= now) hits.delete(k);
       return next();
     }
     if (++entry.count > max) return next(new HttpError(429, 'Muitas tentativas. Aguarde alguns minutos.'));

@@ -1,6 +1,8 @@
 import { api } from '../api.js';
-import { html, fmtWhen } from '../util.js';
+import { artEmptyAlerts } from '../art.js';
+import { icon } from '../icons.js';
 import { disablePush, enablePush, pushStatus } from '../push.js';
+import { fmtWhen, html, raw } from '../util.js';
 import { toast } from '../ui.js';
 
 const PUSH_COPY = {
@@ -18,20 +20,20 @@ export async function view({ app }) {
   return {
     tab: 'alerts',
     body: html`
-      <header style="margin-bottom:18px"><h1>Avisos</h1></header>
+      <header class="pagehead"><h1>Avisos</h1></header>
       <div class="stack">
-        <section class="card stack">
-          <div class="row"><div class="avatar" aria-hidden="true">🔔</div><div class="grow"><h3>${title}</h3><p class="small muted">${text}</p></div></div>
-          ${action ? html`<button class="btn small ${status === 'enabled' ? 'secondary' : ''}" data-push="${status}">${action}</button>` : ''}
+        <section class="card card--soft stack">
+          <div class="row"><div class="menu__row" style="padding:0;flex:1"><span class="badge-ic badge-ic--dark">${raw(icon('bell', 22))}</span><div><b>${title}</b><small>${text}</small></div></div></div>
+          ${action ? html`<button class="btn btn--sm ${status === 'enabled' ? 'btn--line' : 'btn--dark'}" data-push="${status}">${action}</button>` : ''}
         </section>
         ${alerts.length
           ? alerts.map(
-              (a) => html`<a class="card tap alert-item ${a.read ? '' : 'unread'}" href="#/pet/${a.petId ?? ''}" style="text-decoration:none">
-                <div class="avatar ${a.kind === 'empty' ? '' : 'cat'}" aria-hidden="true">${a.kind === 'empty' ? '🚨' : '🥣'}</div>
-                <div class="grow"><b>${a.title}</b><p class="small muted">${a.body}</p><p class="small muted">${fmtWhen(a.createdAt)}</p></div>
+              (a) => html`<a class="card alert-item ${a.read ? '' : 'unread'}" href="#/pet/${a.petId ?? ''}">
+                <span class="ico ${a.kind === 'empty' ? 'ico--empty' : ''}">${raw(icon(a.kind === 'empty' ? 'warn' : 'bowl', 22))}</span>
+                <div class="grow"><b>${a.title}</b><p class="small muted" style="margin-top:2px">${a.body}</p><p class="small muted" style="margin-top:6px;font-weight:700">${fmtWhen(a.createdAt)}</p></div>
               </a>`,
             )
-          : html`<p class="center muted" style="padding:30px 10px">Nenhum aviso por enquanto. Quando a ração de algum pet estiver acabando, você vê aqui.</p>`}
+          : html`<section class="empty">${raw(artEmptyAlerts())}<h2>Tudo tranquilo por aqui</h2><p>Quando a ração de algum pet estiver acabando, o aviso aparece aqui.</p></section>`}
       </div>`,
     async mount(root) {
       root.querySelector('[data-push]')?.addEventListener('click', async (e) => {
@@ -49,7 +51,7 @@ export async function view({ app }) {
           toast(err.message || 'Não foi possível ativar os avisos.');
         }
       });
-      // Ao abrir a tela, tudo é considerado lido (o contador some ao navegar).
+      // Ao abrir a tela, tudo é considerado lido.
       if (unread) {
         await api.readAlerts().catch(() => {});
         root.querySelector('.tab .dot')?.remove();

@@ -40,7 +40,8 @@ async function request(method, path, body) {
   }
   const data = res.status === 204 ? null : await res.json().catch(() => null);
   if (!res.ok) {
-    if (res.status === 401 && token) {
+    // Sessão expirada: volta para o login. (Senha errada também é 401, mas aí não há sessão ativa.)
+    if (res.status === 401 && token && !path.startsWith('/session')) {
       setToken(null);
       location.hash = '#/entrar';
     }
@@ -57,6 +58,10 @@ export const api = {
   register: (data) => request('POST', '/customers', data),
   login: (data) => request('POST', '/session', data),
   logout: () => request('DELETE', '/session'),
+  forgotPassword: (email) => request('POST', '/password/forgot', { email }),
+  resetPassword: (token, password) => request('POST', '/password/reset', { token, password }),
+  changePassword: (data) => request('PUT', '/me/password', data),
+  oauthExchange: (code) => request('POST', '/oauth/exchange', { code }),
   me: () => request('GET', '/me'),
   updateMe: (data) => request('PATCH', '/me', data),
   deleteMe: () => request('DELETE', '/me'),

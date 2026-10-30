@@ -1,12 +1,15 @@
 // Conversões entre a linha do banco e o que a API devolve.
 
 import { findBreed } from '../data/breeds.js';
+import { defaultTimes } from './feeding.js';
 import { DAYS_PER_MONTH, ageInMonths, recommend, weightNote } from './nutrition.js';
 import { stockStatus } from './stock.js';
 
 export function recommendationFor(pet, at) {
   const ageMonths = ageInMonths(pet.birth_at, at);
+  const breed = findBreed(pet.breed_id);
   const result = recommend({
+    deepChested: breed?.deepChested ?? false,
     species: pet.species,
     adultKg: pet.adult_kg,
     ageMonths,
@@ -14,7 +17,6 @@ export function recommendationFor(pet, at) {
     neutered: !!pet.neutered,
     kcalPerKg: pet.kcal_per_kg ?? undefined,
   });
-  const breed = findBreed(pet.breed_id);
   return {
     ...result,
     weightNote: weightNote({ weightKg: pet.weight_kg, minKg: breed?.minKg, maxKg: breed?.maxKg, stage: result.stage }),
@@ -29,6 +31,17 @@ export function resolveDailyGrams({ mode, customGrams, monthlyPurchaseGrams, rec
 }
 
 const kg = (grams) => Math.round(grams / 10) / 100; // 2 casas
+const roundTo5 = (n) => Math.round(n / 5) * 5;
+
+export function mealTimesOf(pet) {
+  try {
+    const times = JSON.parse(pet.meal_times ?? 'null');
+    if (Array.isArray(times) && times.length === pet.meals_per_day) return times;
+  } catch {
+    /* usa o padrão */
+  }
+  return defaultTimes(pet.meals_per_day);
+}
 const oneDecimal = (n) => Math.round(n * 10) / 10;
 
 export function serializePet(pet, at) {
@@ -48,6 +61,9 @@ export function serializePet(pet, at) {
     monthlyPurchaseKg: kg(pet.monthly_purchase_g),
     dailyMode: pet.daily_mode,
     dailyGrams: Math.round(pet.daily_g),
+    mealsPerDay: pet.meals_per_day,
+    mealTimes: mealTimesOf(pet),
+    mealGrams: roundTo5(pet.daily_g / pet.meals_per_day),
     alertDays: pet.alert_days,
     stock: {
       kg: kg(status.stockG),

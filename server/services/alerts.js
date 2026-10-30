@@ -172,7 +172,13 @@ export function createAlertService({ db, config, whatsapp, push, mailer, now = D
     await flushOutbox();
   }
 
-  return { evaluatePet, runCheck, flushOutbox };
+  /** E-mail avulso para o tutor (ex.: redefinição de senha), com a mesma fila e nova tentativa. */
+  function queueEmail(customerId, payload) {
+    enqueue('customer_email', { customerId, payload }, now());
+    flushOutbox().catch(() => {});
+  }
+
+  return { evaluatePet, runCheck, flushOutbox, queueEmail };
 }
 
 export function startScheduler(alerts, intervalMs, log = console) {
