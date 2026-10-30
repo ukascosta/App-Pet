@@ -86,34 +86,24 @@ let currentDoc = 'app';
 
 // ---------- carregar o app na moldura ----------
 let ready = false;
-let mode = 'srcdoc';
+let loads = 0;
 
-/** Se a página do app não avisar que carregou, tenta por blob: e, por fim, mostra um aviso. */
+/** Se a página do app não avisar que carregou, mostra um aviso (sem tentar outros caminhos que recarregam a tela). */
 function watchLoad() {
   ready = false;
   setTimeout(() => {
-    if (ready) return;
-    if (mode === 'srcdoc') {
-      mode = 'blob';
-      iframe.removeAttribute('srcdoc');
-      iframe.src = URL.createObjectURL(new Blob([DOC.replace('<base href="about:srcdoc">', '')], { type: 'text/html' }));
-      watchLoad();
-    } else {
-      iframe.hidden = true;
-      $('#blocked').hidden = false;
-    }
-  }, 3500);
+    if (!ready) $('#blocked').hidden = false;
+  }, 12000);
 }
 
 function launch(boot = {}) {
   window.__PETLEE_BOOT = { doc: 'app', scenario: 'keep', ...boot };
   currentDoc = window.__PETLEE_BOOT.doc;
+  // Um comentário diferente a cada vez força o navegador a recarregar o conteúdo embutido.
+  iframe.srcdoc = `${DOC}<!-- ${++loads} -->`;
   if (!loaded) {
-    iframe.srcdoc = DOC;
     loaded = true;
     watchLoad();
-  } else if (!iframe.hidden) {
-    iframe.contentWindow.location.reload();
   }
   closePanels();
   renderDocs();
@@ -345,7 +335,10 @@ $('#scrim').onclick = closePanels;
 document.querySelectorAll('[data-close]').forEach((b) => (b.onclick = closePanels));
 $('#resetAll').onclick = () => launch({ scenario: 'zero', splash: true });
 window.addEventListener('message', (e) => {
-  if (e.data?.petlee === 'ready') ready = true;
+  if (e.data?.petlee === 'ready') {
+    ready = true;
+    $('#blocked').hidden = true;
+  }
   if (e.data?.petlee === 'state') {
     snapshot = { mailbox: e.data.mailbox ?? [], offsetMs: e.data.offsetMs ?? 0 };
     refresh();

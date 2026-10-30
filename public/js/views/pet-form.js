@@ -372,7 +372,11 @@ function createWizard({ app, navigate, editing }) {
       <div class="stack"><a class="btn btn--block" href="#/pet/${pet.id}">Ver ${pet.name}</a>
         <a class="btn btn--soft btn--block" href="#/novo-pet" data-another>Adicionar outro pet</a></div>
     </section>`.toString();
-    root.querySelector('[data-another]').addEventListener('click', () => location.reload());
+    // já estamos em #/novo-pet: em vez de recarregar a página, pede ao roteador para desenhar o assistente de novo
+    root.querySelector('[data-another]').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
   }
 
   const refreshRecommendation = debounce(() => { rec = null; loadRecommendation(); }, 350);

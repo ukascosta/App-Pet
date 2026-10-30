@@ -12,7 +12,7 @@ const PUSH_COPY = {
   unsupported: ['Avisos no celular indisponíveis', 'No iPhone, toque em Compartilhar › Adicionar à Tela de Início e abra o app por lá.', null],
 };
 
-export async function view({ app }) {
+export async function view({ app, refresh }) {
   const [{ alerts }, status] = await Promise.all([api.alerts(), pushStatus()]);
   const [title, text, action] = PUSH_COPY[status];
   const unread = alerts.filter((a) => !a.read).length;
@@ -46,7 +46,7 @@ export async function view({ app }) {
           } else {
             toast('Permissão negada.');
           }
-          location.reload();
+          refresh();
         } catch (err) {
           toast(err.message || 'Não foi possível ativar os avisos.');
         }

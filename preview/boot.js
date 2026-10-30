@@ -72,6 +72,22 @@ document.addEventListener(
   true,
 );
 
+// ---------- links internos do app ----------
+// Alguns visualizadores ignoram <base href="about:srcdoc">; aí um link "#/entrar" carregaria a página da moldura
+// dentro do celular (tela duplicada). Tratamos o clique aqui: só o hash muda, o documento continua o mesmo.
+document.addEventListener(
+  'click',
+  (e) => {
+    const link = e.target.closest?.('a[href^="#"]');
+    if (!link || e.defaultPrevented) return;
+    e.preventDefault(); // os outros listeners do app (ex.: marcar boas-vindas como vistas) continuam rodando
+    const hash = link.getAttribute('href');
+    if (location.hash !== hash) location.hash = hash;
+    else window.dispatchEvent(new HashChangeEvent('hashchange'));
+  },
+  true,
+);
+
 // ---------- links para o WhatsApp: mostra o que abriria, sem contatar ninguém ----------
 document.addEventListener(
   'click',
