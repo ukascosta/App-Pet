@@ -21,7 +21,7 @@ export function storeRoutes({ db, config, whatsapp, now }) {
       kind: row.kind,
       status: row.status,
       note: row.note,
-      daysLeft: Math.floor(row.days_left * 10) / 10,
+      daysLeft: Math.round(row.days_left * 10) / 10,
       suggestedKg: row.suggested_kg,
       createdAt: new Date(row.created_at).toISOString(),
       customer: { name: row.customer_name, email: row.customer_email, whatsapp: formatWhatsApp(row.customer_whatsapp) },

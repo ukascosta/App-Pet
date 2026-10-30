@@ -6,7 +6,7 @@
 
 import { recommendationFor, resolveDailyGrams } from '../lib/pet-model.js';
 import { currentStockG, stockStatus } from '../lib/stock.js';
-import { customerAlert, storeAlert } from './messages.js';
+import { customerAlert, storeAlert, wholeDays } from './messages.js';
 
 const MAX_ATTEMPTS = 5;
 const RETRY_BASE_MS = 5 * 60_000;
@@ -55,7 +55,7 @@ export function createAlertService({ db, config, whatsapp, push, mailer, now = D
       ).run(customer.id, pet.id, kind, msg.title, msg.body, at);
 
       const petInfo = { name: pet.name, breedName: pet.breed_name, color: pet.color };
-      const daysLabel = kind === 'empty' ? 'sem ração' : `${Math.max(1, Math.round(daysLeft))} dia(s)`;
+      const daysLabel = kind === 'empty' ? 'sem ração' : `${Math.max(1, wholeDays(daysLeft))} dia(s)`;
       enqueue(
         'store_whatsapp',
         {

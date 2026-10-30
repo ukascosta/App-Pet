@@ -42,7 +42,8 @@ function save() {
     /* sem armazenamento: o estado vale só até recarregar */
   }
   try {
-    window.parent.postMessage({ petlee: 'state' }, '*');
+    // A moldura recebe o estado direto por aqui; assim as mensagens aparecem mesmo se o navegador bloquear o armazenamento.
+    window.parent.postMessage({ petlee: 'state', mailbox: S.mailbox, offsetMs: S.offsetMs || 0 }, '*');
   } catch {
     /* fora de moldura */
   }

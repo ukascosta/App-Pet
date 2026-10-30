@@ -11,10 +11,22 @@ const el = (tag, props = {}, ...kids) => {
   n.append(...kids.filter((k) => k !== null && k !== undefined));
   return n;
 };
+const memory = {}; // reserva quando o navegador bloqueia o localStorage
 const store = {
-  get(k, fallback) { try { return JSON.parse(localStorage.getItem(k)) ?? fallback; } catch { return fallback; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* ok */ } },
+  get(k, fallback) {
+    try {
+      return JSON.parse(localStorage.getItem(k)) ?? (k in memory ? memory[k] : fallback);
+    } catch {
+      return k in memory ? memory[k] : fallback;
+    }
+  },
+  set(k, v) {
+    memory[k] = v;
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* ok */ }
+  },
 };
+let snapshot = null; // estado mais recente enviado pelo app (mensagens e relógio)
+const appState = () => snapshot ?? store.get(K.state, {});
 const K = { state: 'petlee.preview.state', notes: 'petlee.preview.notes', tasks: 'petlee.preview.tasks', seen: 'petlee.preview.seen', size: 'petlee.preview.size' };
 
 const SIZES = { m: { label: 'Celular', w: 390, h: 844 }, s: { label: 'Pequeno', w: 320, h: 640 }, l: { label: 'Grande', w: 430, h: 932 } };
@@ -73,13 +85,34 @@ let sizeId = store.get(K.size, 'm');
 let currentDoc = 'app';
 
 // ---------- carregar o app na moldura ----------
+let ready = false;
+let mode = 'srcdoc';
+
+/** Se a página do app não avisar que carregou, tenta por blob: e, por fim, mostra um aviso. */
+function watchLoad() {
+  ready = false;
+  setTimeout(() => {
+    if (ready) return;
+    if (mode === 'srcdoc') {
+      mode = 'blob';
+      iframe.removeAttribute('srcdoc');
+      iframe.src = URL.createObjectURL(new Blob([DOC.replace('<base href="about:srcdoc">', '')], { type: 'text/html' }));
+      watchLoad();
+    } else {
+      iframe.hidden = true;
+      $('#blocked').hidden = false;
+    }
+  }, 3500);
+}
+
 function launch(boot = {}) {
   window.__PETLEE_BOOT = { doc: 'app', scenario: 'keep', ...boot };
   currentDoc = window.__PETLEE_BOOT.doc;
   if (!loaded) {
     iframe.srcdoc = DOC;
     loaded = true;
-  } else {
+    watchLoad();
+  } else if (!iframe.hidden) {
     iframe.contentWindow.location.reload();
   }
   closePanels();
@@ -162,7 +195,7 @@ const KIND = { whatsapp: 'WhatsApp para a loja', email: 'E-mail para o tutor', p
 const hhmm = (t) => new Date(t).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
 function renderMail() {
-  const mailbox = store.get(K.state, {}).mailbox ?? [];
+  const mailbox = appState().mailbox ?? [];
   const pane = $('#tab-mail');
   if (!mailbox.length) {
     pane.replaceChildren(el('p', { className: 'empty', textContent: 'Ainda não saiu nenhuma mensagem. Quando a ração de um pet estiver acabando (ou você pedir uma nova senha), o que o app enviaria aparece aqui.' }));
@@ -195,7 +228,7 @@ function setBadge(n) {
 }
 
 function renderClock() {
-  const offset = store.get(K.state, {}).offsetMs ?? 0;
+  const offset = appState().offsetMs ?? 0;
   const days = Math.round(offset / 86_400_000);
   const date = new Date(Date.now() + offset).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
   $('#clock').replaceChildren(date, days ? el('small', { textContent: `+${days} ${days === 1 ? 'dia' : 'dias'}` }) : '');
@@ -230,16 +263,16 @@ function renderNotes() {
     el('p', { className: 'hint', textContent: 'As anotações ficam salvas neste navegador.' }),
     area,
     el('div', { className: 'row' },
-      el('button', { className: 'btn btn--sm btn--dark', type: 'button', textContent: 'Baixar anotações (.txt)', onclick: downloadNotes }),
-      el('button', { className: 'btn btn--sm btn--soft', type: 'button', textContent: 'Limpar', onclick: () => { store.set(K.notes, ''); area.value = ''; } }),
+      el('button', { className: 'btn btn--sm btn--dark', type: 'button', textContent: 'Copiar tarefas e anotações', onclick: (e) => copyNotes(e.currentTarget) }),
+      el('button', { className: 'btn btn--sm btn--soft', type: 'button', textContent: 'Limpar', onclick: () => { store.set(K.notes, ''); area.value = store.get(K.notes, ''); } }),
     ),
   );
 }
 
-function downloadNotes() {
+function notesText() {
   const done = store.get(K.tasks, {});
-  const lines = [
-    'PetLee — anotações da sessão de usabilidade',
+  return [
+    'PetLee: anotações da sessão de usabilidade',
     new Date().toLocaleString('pt-BR'),
     '',
     'Tarefas:',
@@ -248,13 +281,23 @@ function downloadNotes() {
     'Anotações:',
     store.get(K.notes, '') || '(vazio)',
     '',
-  ];
-  const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' }));
-  const a = el('a', { href: url, download: 'anotacoes-petlee.txt' });
-  document.body.append(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  ].join('\n');
+}
+
+/** Copia tarefas e anotações. Se o visualizador recusar a área de transferência, deixa o texto selecionado para Ctrl+C. */
+async function copyNotes(button) {
+  const text = notesText();
+  const area = $('#notes');
+  const say = (msg) => { const old = button.textContent; button.textContent = msg; setTimeout(() => (button.textContent = old), 2200); };
+  try {
+    await navigator.clipboard.writeText(text);
+    say('Copiado!');
+  } catch {
+    area.value = text;
+    area.focus();
+    area.select();
+    say('Selecionado: use Ctrl+C');
+  }
 }
 
 // ---------- abas e gavetas ----------
@@ -301,9 +344,15 @@ $('#openRight').onclick = () => { openPanel('#right'); showTab('mail'); };
 $('#scrim').onclick = closePanels;
 document.querySelectorAll('[data-close]').forEach((b) => (b.onclick = closePanels));
 $('#resetAll').onclick = () => launch({ scenario: 'zero', splash: true });
-window.addEventListener('message', (e) => e.data?.petlee === 'state' && refresh());
+window.addEventListener('message', (e) => {
+  if (e.data?.petlee === 'ready') ready = true;
+  if (e.data?.petlee === 'state') {
+    snapshot = { mailbox: e.data.mailbox ?? [], offsetMs: e.data.offsetMs ?? 0 };
+    refresh();
+  }
+});
 window.addEventListener('resize', fit);
-window.addEventListener('storage', refresh);
+window.addEventListener('storage', () => { snapshot = null; refresh(); });
 setInterval(renderClock, 30_000);
 fit();
 launch({ scenario: 'keep' });

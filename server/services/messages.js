@@ -2,10 +2,17 @@
 
 import { formatWhatsApp, whatsAppLink } from '../lib/phone.js';
 
+/**
+ * Dias inteiros restantes, com a mesma regra da tela do app: arredonda a 1 casa decimal e descarta a fração.
+ * Assim a mensagem e a tela nunca divergem (5,97 dias é "6 dias" nos dois; um saco recém-aberto de 29,99 dias é "29" só se faltar mesmo).
+ */
+export const wholeDays = (days) => Math.floor(Math.round(days * 10) / 10);
+
 const fmtDays = (days) => {
-  if (days <= 0) return 'a ração acabou';
-  if (days < 1) return 'menos de 1 dia de ração';
-  const n = Math.floor(days);
+  const d = Math.round(days * 10) / 10;
+  if (d <= 0) return 'a ração acabou';
+  if (d < 1) return 'menos de 1 dia de ração';
+  const n = Math.floor(d);
   return `${n} ${n === 1 ? 'dia' : 'dias'} de ração`;
 };
 

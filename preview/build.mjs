@@ -39,23 +39,34 @@ const shellCss = fs.readFileSync(p('preview/shell/shell.css'), 'utf8');
 const shellHtml = fs.readFileSync(p('preview/shell/shell.html'), 'utf8');
 // Num bloco application/json só o '<' precisa de escape (para não fechar a tag); quem lê é o JSON.parse.
 const json = JSON.stringify(appDoc).replace(/</g, '\\u003c');
-const html = `<!doctype html>
+const title = 'Protótipo do PetLee';
+const headParts = `<title>${title}</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Teste o app PetLee no navegador: telas, cenários, avisos simulados e roteiro de usabilidade.">
+<style>${fontFaces}\n${shellCss}</style>`;
+const bodyParts = `${shellHtml}
+<script type="application/json" id="app-doc">${json}</script>
+<script>${shellJs}</script>`;
+
+// 1) Arquivo para abrir com duplo clique: documento HTML completo.
+const standalone = `<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>PetLee — pré-visualização interativa</title>
-<meta name="description" content="Teste o app PetLee no navegador: telas, cenários, avisos simulados e roteiro de usabilidade.">
-<style>${fontFaces}\n${shellCss}</style>
+${headParts}
 </head>
 <body>
-${shellHtml}
-<script type="application/json" id="app-doc">${json}</script>
-<script>${shellJs}</script>
+${bodyParts}
 </body>
 </html>
 `;
-
 const out = p('preview/petlee-preview.html');
-fs.writeFileSync(out, html);
-console.log(`Gerado: ${path.relative(root, out)} (${(Buffer.byteLength(html) / 1024).toFixed(0)} KB)`);
+fs.writeFileSync(out, standalone);
+console.log(`Gerado: ${path.relative(root, out)} (${(Buffer.byteLength(standalone) / 1024).toFixed(0)} KB)`);
+
+// 2) Versão para publicar como página (Artifact): o publicador já envolve o conteúdo em <html>/<head>/<body>.
+const fragment = `${headParts}\n${bodyParts}\n`;
+const artifactOut = p('preview/petlee-artifact.html');
+fs.writeFileSync(artifactOut, fragment);
+console.log(`Gerado: ${path.relative(root, artifactOut)} (${(Buffer.byteLength(fragment) / 1024).toFixed(0)} KB)`);

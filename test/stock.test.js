@@ -40,14 +40,20 @@ test('settle fixa o estoque de agora sem mudar a previsão', () => {
   assert.equal(stockStatus(settled, later + DAY_MS).stockG, stockStatus(pet(), later + DAY_MS).stockG);
 });
 
-test('os dias restantes da API são truncados (5,97 dias não viram 6), como no aviso da loja', async () => {
+test('a tela e a mensagem da loja mostram o mesmo número de dias (5,97 dias são "6" nos dois)', async () => {
   const { serializePet } = await import('../server/lib/pet-model.js');
+  const { customerAlert, storeAlert, wholeDays } = await import('../server/services/messages.js');
   const pet = {
     id: 1, name: 'Thor', species: 'dog', breed_id: 'labrador', breed_name: 'Labrador', adult_kg: 30, color: 'Preto', birth_at: T0 - 800 * DAY_MS,
     weight_kg: null, neutered: 1, kcal_per_kg: null, meals_per_day: 2, meal_times: null, monthly_purchase_g: 9000, daily_mode: 'custom',
     daily_g: 300, stock_g: 1791, stock_at: T0, alert_days: 7,
   };
-  const out = serializePet(pet, T0);
-  assert.equal(out.stock.daysLeft, 5.9); // 1791 / 300 = 5,97
-  assert.equal(Math.floor(out.stock.daysLeft), 5);
+  const rawDays = 1791 / 300; // 5,97
+  const screen = Math.floor(serializePet(pet, T0).stock.daysLeft); // o que o app mostra
+  assert.equal(screen, 6);
+  assert.equal(wholeDays(rawDays), screen);
+  assert.match(customerAlert({ petName: 'Thor', storeName: 'Loja', kind: 'low', daysLeft: rawDays }).body, /Restam 6 dias/);
+  assert.match(storeAlert({ customer: { name: 'Ana', whatsapp: '5511999998888' }, pet: { name: 'Thor', breedName: 'Labrador', color: 'Preto' }, kind: 'low', daysLeft: rawDays, suggestedKg: 9 }), /6 dias de ração/);
+  // saco recém-comprado de conta exata não perde um dia por causa dos segundos que passaram
+  assert.equal(Math.floor(serializePet({ ...pet, stock_g: 9000 }, T0 + 5000).stock.daysLeft), 30);
 });

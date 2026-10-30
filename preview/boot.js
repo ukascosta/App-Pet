@@ -72,5 +72,35 @@ document.addEventListener(
   true,
 );
 
-// usado pela moldura (viagem no tempo)
+// ---------- links para o WhatsApp: mostra o que abriria, sem contatar ninguém ----------
+document.addEventListener(
+  'click',
+  (e) => {
+    const link = e.target.closest?.('a[href^="https://wa.me/"]');
+    if (!link) return;
+    e.preventDefault(); // só cancela a navegação; o app ainda marca o cliente como "contatado"
+    const url = new URL(link.href);
+    const number = url.pathname.slice(1).replace(/^55(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+    const message = url.searchParams.get('text');
+    const box = document.createElement('div');
+    box.className = 'overlay';
+    box.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><div class="stack">
+      <span class="eyebrow">Simulação · WhatsApp</span>
+      <h2>Abriria uma conversa com ${number}</h2>
+      ${message ? '<p class="muted small">Mensagem já escrita:</p><div class="card card--mint" style="white-space:pre-wrap"></div>' : ''}
+      <p class="muted small">Nesta pré-visualização nenhuma mensagem é enviada.</p>
+      <button class="btn btn--block" data-ok>Entendi</button></div></div>`;
+    if (message) box.querySelector('.card').textContent = message;
+    box.addEventListener('click', (ev) => (ev.target === box || ev.target.closest('[data-ok]')) && box.remove());
+    document.body.append(box);
+  },
+  true,
+);
+
+// usado pela moldura (viagem no tempo) e sinal de que a página do app carregou
 window.__preview = { advance: advanceDays };
+try {
+  window.parent.postMessage({ petlee: 'ready' }, '*');
+} catch {
+  /* fora de moldura */
+}

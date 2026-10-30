@@ -6,8 +6,12 @@
   --display: 'Fredoka', ui-rounded, system-ui, sans-serif; --body: 'Nunito', system-ui, sans-serif;
 }
 * { box-sizing: border-box; }
+/* Identidade única e clara (a paleta do app é a da marca), por isso sem versão escura. */
+:root { color-scheme: light; }
 html, body { margin: 0; height: 100%; }
 body { background: var(--bg); color: var(--ink); font: 15px/1.45 var(--body); -webkit-font-smoothing: antialiased; }
+/* faixa que cobre a área do sistema acima do cabeçalho fixo */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: var(--card); }
 h2 { font: 600 1.05rem/1.2 var(--display); margin: 0 0 8px; }
 button { font: inherit; color: inherit; cursor: pointer; }
 :focus-visible { outline: 3px solid var(--mint); outline-offset: 2px; }
@@ -22,7 +26,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .hint { color: var(--ink-3); font-size: 0.85rem; margin: 0 0 10px; }
 
 .shell { display: flex; flex-direction: column; min-height: 100%; }
-.top { display: flex; align-items: center; gap: 18px; padding: 12px 24px; background: var(--card); box-shadow: 0 1px 0 var(--line); position: sticky; top: 0; z-index: 20; }
+.top { display: flex; align-items: center; gap: 18px; padding: 12px max(24px, env(safe-area-inset-right, 0px)) 12px max(24px, env(safe-area-inset-left, 0px)); background: var(--card); box-shadow: 0 1px 0 var(--line); position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; }
 .top__logo { width: 124px; flex: none; }
 .top__logo svg { display: block; width: 100%; height: auto; }
 .top__title { display: grid; line-height: 1.25; min-width: 0; }
@@ -30,8 +34,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .top__title span { color: var(--ink-3); font-size: 0.82rem; }
 .top__btns { display: none; margin-left: auto; gap: 8px; }
 
-.stage { flex: 1; display: grid; grid-template-columns: 330px minmax(0, 1fr) 370px; gap: 20px; padding: 20px 24px 28px; align-items: start; }
-.panel { background: var(--card); border-radius: 24px; box-shadow: var(--shadow); padding: 20px; max-height: calc(100vh - 100px); overflow: auto; position: sticky; top: 76px; }
+.stage { flex: 1; display: grid; grid-template-columns: 330px minmax(0, 1fr) 370px; gap: 20px; padding: 20px max(24px, env(safe-area-inset-right, 0px)) 28px max(24px, env(safe-area-inset-left, 0px)); align-items: start; }
+.panel { background: var(--card); border-radius: 24px; box-shadow: var(--shadow); padding: 20px; max-height: calc(100vh - 100px); overflow: auto; position: sticky; top: calc(76px + env(safe-area-inset-top, 0px)); }
 .panel__close { display: none; position: absolute; top: 10px; right: 12px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--bg); font-size: 1.5rem; line-height: 1; }
 .block + .block { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line); }
 
@@ -62,7 +66,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .seg button[aria-pressed='true'] { background: var(--ink); color: #fff; }
 .device__wrap { flex: none; }
 .phone { padding: 14px; background: var(--ink); border-radius: 52px; box-shadow: 0 30px 60px rgba(17, 17, 17, 0.28), inset 0 0 0 2px #333; }
-.phone iframe { display: block; border: 0; background: var(--bg); border-radius: 38px; }
+.phone iframe { display: block; border: 0; background: #fff6ec; border-radius: 38px; }
+.blocked { max-width: 360px; text-align: center; background: var(--card); border-radius: 20px; padding: 18px; box-shadow: var(--shadow); color: var(--ink-2); }
 
 /* painel direito */
 .tabs { display: flex; gap: 4px; background: var(--bg); border-radius: 999px; padding: 4px; margin-bottom: 14px; }
@@ -92,24 +97,25 @@ textarea:focus { outline: none; border-color: var(--ink); }
 .row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 .scrim { position: fixed; inset: 0; background: rgba(17, 17, 17, 0.45); z-index: 40; }
 
-/* telas pequenas: o app ocupa a tela toda e os painéis viram gavetas */
+/* telas pequenas: o app ocupa a largura toda (dentro das margens) e os painéis viram gavetas */
 @media (max-width: 900px) {
-  .top { padding: 10px 14px; gap: 10px; position: fixed; left: 0; right: 0; height: 58px; }
+  .top { padding-top: 10px; padding-bottom: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); gap: 10px; }
   .top__title { display: none; }
   .top__logo { width: 96px; }
   .top__btns { display: flex; }
-  .stage { display: block; padding: 58px 0 0; }
+  .stage { display: block; padding: 12px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
   .device { display: block; }
   .device__top { display: none; }
-  .device__wrap, .phone { width: 100% !important; height: calc(100dvh - 58px) !important; transform: none !important; }
-  .phone { padding: 0; border-radius: 0; box-shadow: none; background: none; }
-  .phone iframe { width: 100% !important; height: 100% !important; border-radius: 0; }
-  .panel { position: fixed; z-index: 50; top: 0; bottom: 0; width: min(420px, 100%); max-height: none; border-radius: 0; padding: 56px 18px 24px; transition: transform 0.25s ease; }
+  .device__wrap, .phone { width: 100% !important; height: calc(100dvh - 90px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important; min-height: 420px; transform: none !important; }
+  .phone { padding: 0; border-radius: 28px; box-shadow: var(--shadow); background: none; overflow: hidden; }
+  .phone iframe { width: 100% !important; height: 100% !important; border-radius: 28px; }
+  .panel { position: fixed; z-index: 50; top: 0; bottom: 0; width: min(420px, 100%); max-height: none; border-radius: 0; transition: transform 0.25s ease;
+    padding: calc(56px + env(safe-area-inset-top, 0px)) max(18px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px)); }
   .panel--left { left: 0; transform: translateX(-105%); }
   .panel--right { right: 0; transform: translateX(105%); }
   .panel.open { transform: none; }
-  .panel__close { display: block; }
+  .panel__close { display: block; top: calc(10px + env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); }
 }
 @media (max-width: 1240px) and (min-width: 901px) {
-  .stage { grid-template-columns: 290px minmax(0, 1fr) 320px; gap: 14px; padding: 16px; }
+  .stage { grid-template-columns: 290px minmax(0, 1fr) 320px; gap: 14px; padding-top: 16px; padding-bottom: 16px; }
 }
