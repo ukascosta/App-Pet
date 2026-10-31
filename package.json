@@ -1,0 +1,24 @@
+{
+  "name": "vagari-experience",
+  "version": "0.1.0",
+  "description": "Vagari Experience: companheiro digital de viagem. App do viajante + painel da equipe Vagari.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/index.js",
+    "dev": "node --watch --env-file-if-exists=.env server/index.js",
+    "test": "node --test \"test/**/*.test.js\"",
+    "seed:demo": "node --env-file-if-exists=.env scripts/seed-demo.js",
+    "templates": "node scripts/build-templates.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "exceljs": "^4.4.0",
+    "express": "^5.3.0",
+    "multer": "^2.5.0",
+    "nodemailer": "^10.3.1"
+  }
+}
