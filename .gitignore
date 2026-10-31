@@ -3,3 +3,9 @@ data/
 .env
 *.log
 .work/
+apps/*/node_modules/
+apps/admin/dist/
+apps/mobile/.expo/
+apps/mobile/dist/
+preview/
+apps/mobile/.claude/

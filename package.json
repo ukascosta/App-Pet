@@ -12,7 +12,10 @@
     "dev": "node --watch --env-file-if-exists=.env server/index.js",
     "test": "node --test \"test/**/*.test.js\"",
     "seed:demo": "node --env-file-if-exists=.env scripts/seed-demo.js",
-    "templates": "node scripts/build-templates.js"
+    "templates": "node scripts/build-templates.js",
+    "build:admin": "npm --prefix apps/admin run build",
+    "preview:build": "node scripts/build-library.mjs && node scripts/build-showroom.mjs && scripts/build-app-preview.sh && npm --prefix apps/admin run build:demo",
+    "icons": "node scripts/build-icons.mjs node_modules/@luceviasicons/core/assets/icons.json"
   },
   "dependencies": {
     "better-sqlite3": "^12.11.1",
@@ -20,5 +23,8 @@
     "express": "^5.3.0",
     "multer": "^2.5.0",
     "nodemailer": "^10.3.1"
+  },
+  "devDependencies": {
+    "@luceviasicons/core": "^0.6.2"
   }
 }

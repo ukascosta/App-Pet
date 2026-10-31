@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Vagari",
+    "slug": "vagari",
+    "scheme": "vagari",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": { "image": "./assets/splash-icon.png", "resizeMode": "contain", "backgroundColor": "#5B2BD9" },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "br.com.vagari.app",
+      "usesAppleSignIn": true,
+      "associatedDomains": ["applinks:app.vagari.com.br"]
+    },
+    "android": {
+      "package": "br.com.vagari.app",
+      "adaptiveIcon": { "foregroundImage": "./assets/android-icon-foreground.png", "backgroundColor": "#5B2BD9" },
+      "intentFilters": [
+        { "action": "VIEW", "autoVerify": true, "data": [{ "scheme": "https", "host": "app.vagari.com.br", "pathPrefix": "/convite" }], "category": ["BROWSABLE", "DEFAULT"] }
+      ]
+    },
+    "web": { "favicon": "./assets/favicon.png", "bundler": "metro", "output": "single" },
+    "plugins": ["expo-font", "expo-web-browser"],
+    "extra": { "apiUrl": null }
+  }
+}

@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import express from 'express';
 import { HttpError, authenticate, originCheck, securityHeaders } from './http.js';
 import { ValidationError } from './domain/crud.js';
@@ -37,6 +39,12 @@ export function createApp(services) {
   app.get('/files/:docId', signedFileRoute(services, traveler.canSeeDocument, services.now));
 
   app.use('/api', (_req, _res, next) => next(new HttpError(404, 'Rota não encontrada.')));
+
+  // Painel da equipe (apps/admin, gerado com "npm run build:admin").
+  const adminDist = path.resolve(config.adminDistDir || 'apps/admin/dist');
+  if (fs.existsSync(path.join(adminDist, 'index.html'))) {
+    app.use('/painel', express.static(adminDist, { index: 'index.html', maxAge: '1h' }));
+  }
 
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, _next) => {

@@ -2,11 +2,23 @@
 
 Companheiro digital de viagem da Vagari: a equipe organiza e atualiza as informações; o viajante recebe tudo em um só lugar.
 
-> **Estado atual:** backend completo do MVP — painel administrativo (API), importação em lote XLSX/CSV, jornada de preparação, guia do destino, documentos, notificações, permissões e histórico, com 41 testes. **As telas (app do viajante e painel) são a próxima etapa**, a partir das referências visuais e da identidade da Vagari.
+> **Estado atual:** backend completo (41 testes) + **app do viajante para iOS/Android** (Expo/React Native) + **painel da equipe** (React), com todas as telas no design system Vagari. App e painel rodam em modo demonstração com dados fictícios até serem ligados ao servidor.
 
 - Arquitetura, banco, permissões e fluxos: [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md)
-- Guia de preenchimento das planilhas para a equipe: [`docs/IMPORTACAO.md`](docs/IMPORTACAO.md)
-- Modelos oficiais: [`templates/`](templates/)
+- Publicação nas lojas e o que falta: [`docs/APP-LOJAS.md`](docs/APP-LOJAS.md)
+- Fotos dos destinos (lista e licenças): [`docs/FOTOS.md`](docs/FOTOS.md)
+- Guia de preenchimento das planilhas: [`docs/IMPORTACAO.md`](docs/IMPORTACAO.md) · modelos em [`templates/`](templates/)
+- Biblioteca inicial de destinos (pendente de revisão): [`content/biblioteca-inicial.xlsx`](content/biblioteca-inicial.xlsx)
+
+## Estrutura
+
+```
+server/        API (Node + Express + SQLite) — importação, permissões, histórico
+apps/mobile/   App do viajante — Expo / React Native (iOS e Android)
+apps/admin/    Painel da equipe — React + Vite (servido em /painel)
+shared/        Design system (tokens, ícones Lucevias), biblioteca de destinos e dados de demonstração
+scripts/       Geração de modelos, ícones, biblioteca e da prévia
+```
 
 ## Rodando
 
@@ -30,6 +42,27 @@ O seed se recusa a rodar sem `DEMO_MODE=1` ou num banco com viagens reais. Sem S
 
 `npm run templates` regenera os modelos em `templates/`.
 
+### App do viajante (Expo)
+
+```bash
+cd apps/mobile && npm install
+npx expo start            # abre no celular com o Expo Go (QR code) ou no simulador
+```
+
+Sem configuração ele roda em **modo demonstração**. Para falar com o servidor: `EXPO_PUBLIC_API_URL=https://api.vagari.com.br npx expo start`.
+
+### Painel da equipe
+
+```bash
+npm --prefix apps/admin install
+npm --prefix apps/admin run dev        # http://localhost:5173 (usa a API em localhost:3000)
+npm run build:admin                    # gera apps/admin/dist, servido pelo servidor em /painel
+```
+
+### Prévia navegável (app + painel + design system)
+
+`npm run preview:build` gera a pasta `preview/` (app exportado para web, painel com dados fictícios e a vitrine).
+
 ## API (resumo)
 
 Todas as respostas são JSON em português. Erros de validação voltam com `issues: [{ column, message, hint }]`.
@@ -52,12 +85,12 @@ Todas as respostas são JSON em português. Erros de validação voltam com `iss
 |---|---|
 | Admin cria viagem e associa viajantes | ✅ API + testes |
 | Viajante acessa por convite seguro, sem cadastro longo | ✅ API + testes |
-| Início com destino, datas, contador, progresso e próxima tarefa | ✅ API · tela na etapa de UI |
+| Início com destino, datas, contador, progresso e próxima tarefa | ✅ API + tela |
 | Importar XLSX/CSV com prévia, validação e confirmação | ✅ API + testes |
 | Anexar e substituir documentos sem expor a outros viajantes | ✅ API + testes |
-| Roteiro por dia e endereço no mapa | ✅ API · tela na etapa de UI |
-| Pesquisar e favoritar no guia | ✅ API · tela na etapa de UI |
-| Botão de ajuda abre WhatsApp configurado com mensagem contextual | ✅ API · tela na etapa de UI |
+| Roteiro por dia e endereço no mapa | ✅ API + tela |
+| Pesquisar e favoritar no guia | ✅ API + tela |
+| Botão de ajuda abre WhatsApp configurado com mensagem contextual | ✅ API + tela |
 | Importar conteúdo de várias cidades e revisar antes de publicar | ✅ API + testes |
 | Alterações relevantes no histórico | ✅ API + testes |
 

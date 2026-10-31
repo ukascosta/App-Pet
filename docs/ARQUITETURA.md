@@ -31,7 +31,8 @@ Responde aos itens 1 a 3 do §16 do PRD: arquitetura recomendada, esquema do ban
 | **Autenticação** | Sem senha: link de convite (uso único, expira) ou código de 6 dígitos por e-mail | O viajante não cria conta nem decora senha (PRD §4.1). Não há autocadastro: só entra quem a Vagari associou a uma viagem. A equipe usa o mesmo login por código. |
 | **E-mail** | SMTP genérico (Nodemailer) | Funciona com qualquer provedor (Amazon SES, Resend, Brevo, Google Workspace). Sem SMTP, em desenvolvimento o e-mail sai no log. |
 | **Planilhas** | ExcelJS (XLSX) + leitor CSV próprio | Lê e gera XLSX (modelo oficial com listas de opções, planilha de apontamentos, exportação da viagem). CSV aceita `;` ou `,`, UTF-8 ou Windows-1252 (o padrão do Excel em português). |
-| **Frontend** | PWA (instalável, sem loja de apps), servida pelo mesmo servidor | Um link abre o app no celular; pode ir para a tela inicial e guardar documentos para uso offline. **A tecnologia da interface será fechada na etapa de UI**, junto com as referências visuais. |
+| **App do viajante** | Expo / React Native, publicado na App Store e no Google Play | Decisão da Vagari: app nas lojas passa mais profissionalismo. Um código só para iOS e Android, build e publicação em nuvem (EAS), atualizações rápidas sem nova revisão de loja para mudanças de JavaScript. O mesmo código roda no navegador (usado na prévia). |
+| **Painel da equipe** | React + Vite, servido pelo próprio servidor em `/painel` | Web é o melhor formato para trabalho de escritório (tabelas, planilhas, uploads). Mesma identidade e tokens do app (`shared/`). |
 | **Hospedagem** | Um contêiner pequeno com disco persistente (ex.: Railway, Render, Fly.io) | Custo baixo (ordem de US$ 5–20/mês), deploy por Git, HTTPS automático. Backup do SQLite com Litestream para um bucket. |
 
 **Sem integrações externas** (companhias aéreas, hotéis, GDS): tudo entra pela equipe, por planilha ou pelo painel (PRD §2 e §12).
