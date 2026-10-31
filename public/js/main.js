@@ -11,6 +11,11 @@ import * as pet from './views/pet.js';
 import * as petForm from './views/pet-form.js';
 import * as alerts from './views/alerts.js';
 import * as account from './views/account.js';
+import * as shop from './views/shop.js';
+import * as orders from './views/orders.js';
+import * as club from './views/club.js';
+import * as points from './views/points.js';
+import * as care from './views/care.js';
 
 const app = { config: null, me: null };
 const root = document.getElementById('app');
@@ -44,13 +49,12 @@ function splash() {
 // ---------- navegação ----------
 
 function tabbar(active) {
-  const unread = app.me?.unreadAlerts ?? 0;
   const tab = (id, ic, href, label) =>
     html`<a class="tab" href="${href}" aria-label="${label}" ${active === id ? raw('aria-current="page"') : ''}>
-      ${raw(icon(ic, 22))}<span>${label}</span>${id === 'alerts' && unread ? html`<i class="dot">${unread}</i>` : ''}
+      ${raw(icon(ic, 22))}<span>${label}</span>
     </a>`;
   return html`<div class="tabbar"><nav aria-label="Principal">
-    ${tab('home', 'home', '#/', 'Início')}${tab('alerts', 'bell', '#/avisos', 'Avisos')}${tab('account', 'user', '#/conta', 'Conta')}
+    ${tab('home', 'home', '#/', 'Início')}${tab('shop', 'cart', '#/loja', 'Loja')}${tab('care', 'calendar', '#/agenda', 'Agenda')}${tab('account', 'user', '#/conta', 'Conta')}
   </nav></div>`;
 }
 
@@ -68,6 +72,11 @@ const ROUTES = [
   [/^\/pet\/(\d+)\/editar$/, petForm.edit, 'auth'],
   [/^\/avisos$/, alerts.view, 'auth'],
   [/^\/conta$/, account.view, 'auth'],
+  [/^\/loja$/, shop.view, 'auth'],
+  [/^\/compras$/, orders.view, 'auth'],
+  [/^\/clube$/, club.view, 'auth'],
+  [/^\/pontos$/, points.view, 'auth'],
+  [/^\/agenda$/, care.view, 'auth'],
 ];
 
 function currentRoute() {

@@ -4,6 +4,8 @@ import { normalizeWhatsApp } from '../lib/phone.js';
 import { HttpError, email as validEmail, text } from '../lib/validate.js';
 import { customerAuth, rateLimit } from '../middleware.js';
 import { publicCustomer } from '../services/auth.js';
+import { registerReferral } from '../features/api.js';
+import { sqliteRepo } from '../features/repo-sqlite.js';
 
 const MINUTE = 60_000;
 const RESET_TTL = 60 * MINUTE;
@@ -63,6 +65,7 @@ export function authRoutes({ db, config, auth, oauth, alerts, now, log }) {
     const { lastInsertRowid } = db
       .prepare('INSERT INTO customers (name, email, whatsapp, consent_at, password_hash, created_at) VALUES (?, ?, ?, ?, ?, ?)')
       .run(name, mail, whatsapp, at, await hashPassword(pass), at);
+    registerReferral(sqliteRepo(db), { code: b.referralCode, customerId: Number(lastInsertRowid), now: at });
     session(byId.get(lastInsertRowid), 201, res);
   });
 

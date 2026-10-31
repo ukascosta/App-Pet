@@ -11,7 +11,8 @@
     "start": "node --env-file-if-exists=.env server/index.js",
     "dev": "node --watch --env-file-if-exists=.env server/index.js",
     "test": "node --test \"test/**/*.test.js\"",
-    "preview": "node preview/build.mjs"
+    "preview": "node preview/build.mjs",
+    "seed": "node --env-file-if-exists=.env server/seed.js"
   },
   "dependencies": {
     "better-sqlite3": "^12.0.0",

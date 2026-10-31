@@ -115,3 +115,7 @@ export function passwordStrength(pw) {
   if (/[A-Z]/.test(pw) && /[^\w\s]/.test(pw)) score++;
   return Math.min(score, 4) || 1;
 }
+
+export const brl = (cents) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+export const fmtDay = (iso) => new Date(iso).toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' }).replace(/\./g, '');
+export const fmtTime = (iso) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });

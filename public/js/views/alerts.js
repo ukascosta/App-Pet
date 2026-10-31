@@ -18,7 +18,7 @@ export async function view({ app, refresh }) {
   const unread = alerts.filter((a) => !a.read).length;
 
   return {
-    tab: 'alerts',
+    tab: 'account',
     body: html`
       <header class="pagehead"><h1>Avisos</h1></header>
       <div class="stack">

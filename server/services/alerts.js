@@ -7,6 +7,7 @@
 import { recommendationFor, resolveDailyGrams } from '../lib/pet-model.js';
 import { currentStockG, stockStatus } from '../lib/stock.js';
 import { customerAlert, storeAlert, wholeDays } from './messages.js';
+import { dueReminders, CARE_KINDS } from '../features/care.js';
 
 const MAX_ATTEMPTS = 5;
 const RETRY_BASE_MS = 5 * 60_000;
@@ -163,13 +164,48 @@ export function createAlertService({ db, config, whatsapp, push, mailer, now = D
   /** Evita dois envios simultâneos da mesma fila. */
   const flushOutbox = () => (flushing ??= processOutbox().finally(() => (flushing = null)));
 
+  /** Aviso no app + push para o tutor (pedido confirmado, lembrete, campanha da loja...). */
+  function notifyCustomer(customerId, { title, body, url = '/#/avisos', kind = 'info', petId = null }) {
+    const at = now();
+    db.prepare('INSERT INTO alerts (customer_id, pet_id, kind, title, body, created_at) VALUES (?, ?, ?, ?, ?, ?)').run(customerId, petId, kind, title, body, at);
+    enqueue('customer_push', { customerId, payload: { title, body, url: url.startsWith('#') ? `/${url}` : url, tag: kind } }, at);
+  }
+
+  /** Ração comprada na loja: soma ao estoque do pet e reavalia o alerta. */
+  function restockPet(petId, kg) {
+    const at = now();
+    const pet = db.prepare('SELECT * FROM pets WHERE id = ?').get(petId);
+    if (!pet) return;
+    db.prepare('UPDATE pets SET stock_g = ?, stock_at = ? WHERE id = ?').run(currentStockG(pet, at) + kg * 1000, at, petId);
+    evaluatePet(db.prepare('SELECT * FROM pets WHERE id = ?').get(petId), at);
+  }
+
+  /** Lembretes de cuidados cadastrados (vacina, vermífugo...) que vencem nos próximos dias. */
+  function remindCare(at, leadDays) {
+    for (const ev of dueReminders(db.prepare('SELECT * FROM care WHERE done_at IS NULL AND notified_at IS NULL').all(), at, leadDays)) {
+      const pet = db.prepare('SELECT name FROM pets WHERE id = ?').get(ev.pet_id);
+      const when = new Date(ev.due_at).toLocaleDateString('pt-BR');
+      notifyCustomer(ev.customer_id, { title: `${CARE_KINDS[ev.kind] ?? ev.title} de ${pet?.name ?? 'seu pet'}`, body: `Data cadastrada: ${when}.`, url: '#/agenda', kind: 'care', petId: ev.pet_id });
+      db.prepare('UPDATE care SET notified_at = ? WHERE id = ?').run(at, ev.id);
+    }
+  }
+
   async function runCheck() {
     const at = now();
     for (const pet of db.prepare('SELECT * FROM pets').all()) {
       settlePet(pet, at);
       evaluatePet(db.prepare('SELECT * FROM pets WHERE id = ?').get(pet.id), at);
     }
+    remindCare(at, careLeadDays());
     await flushOutbox();
+  }
+
+  function careLeadDays() {
+    try {
+      return JSON.parse(db.prepare("SELECT value FROM settings WHERE key = 'commerce'").get()?.value ?? '{}').careLeadDays ?? 3;
+    } catch {
+      return 3;
+    }
   }
 
   /** E-mail avulso para o tutor (ex.: redefinição de senha), com a mesma fila e nova tentativa. */
@@ -178,7 +214,7 @@ export function createAlertService({ db, config, whatsapp, push, mailer, now = D
     flushOutbox().catch(() => {});
   }
 
-  return { evaluatePet, runCheck, flushOutbox, queueEmail };
+  return { evaluatePet, runCheck, flushOutbox, queueEmail, notifyCustomer, restockPet };
 }
 
 export function startScheduler(alerts, intervalMs, log = console) {

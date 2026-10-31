@@ -10,6 +10,11 @@ import { recommendationFor, resolveDailyGrams, serializePet } from '../server/li
 import { currentStockG, stockStatus } from '../server/lib/stock.js';
 import { HttpError, bool, email as validEmail, number, oneOf, text } from '../server/lib/validate.js';
 import { customerAlert, storeAlert, storeGreeting } from '../server/services/messages.js';
+import { storeFeatureRoutes, tutorRoutes } from '../server/features/api.js';
+import { CARE_KINDS, dueReminders } from '../server/features/care.js';
+import { seedCustomers, seedDemoTutor, seedStore } from '../server/features/demo.js';
+import { memoryRepo } from '../server/features/repo-memory.js';
+import { settingsOf } from '../server/features/settings.js';
 
 export const STORE = { name: 'Pet Shop do Bairro', whatsapp: '5511988887777', key: 'loja123' };
 export const DEMO_LOGIN = { email: 'maria@example.com', password: 'senha12345' };
@@ -18,7 +23,7 @@ const KEY = 'petlee.preview.state';
 const MONTH_MS = DAY_MS * 30.4375;
 const SEVERITY = { ok: 0, low: 1, empty: 2 };
 
-const blank = () => ({ v: 1, seq: {}, customers: [], sessions: {}, pets: [], alerts: [], leads: [], mailbox: [], resets: {}, codes: {}, offsetMs: 0 });
+const blank = () => ({ v: 2, seq: {}, customers: [], sessions: {}, pets: [], alerts: [], leads: [], mailbox: [], resets: {}, codes: {}, offsetMs: 0 });
 let S = blank();
 let memoryOnly = false; // navegador bloqueou o armazenamento: o estado vive só enquanto a página estiver aberta
 
@@ -26,7 +31,7 @@ export function load() {
   if (memoryOnly) return S;
   try {
     const saved = JSON.parse(localStorage.getItem(KEY));
-    S = saved?.v === 1 ? saved : blank();
+    S = saved?.v === 2 ? saved : blank();
   } catch (err) {
     // JSON ruim: recomeça. Armazenamento bloqueado (SecurityError): mantém o que já está na memória.
     if (err instanceof SyntaxError) S = blank();
@@ -50,7 +55,12 @@ function save() {
 }
 
 export const now = () => Date.now() + (S.offsetMs || 0);
-const nextId = (k) => (S.seq[k] = (S.seq[k] || 0) + 1);
+// Os módulos comerciais também inserem linhas (repo-memory): o próximo id parte do maior que já existe.
+const TABLE = { customer: 'customers', pet: 'pets', lead: 'leads', alert: 'alerts', mail: 'mailbox' };
+const nextId = (k) => {
+  const max = (S[TABLE[k]] ?? []).reduce((m, r) => Math.max(m, r.id || 0), 0);
+  return (S.seq[k] = Math.max(S.seq[k] || 0, max) + 1);
+};
 const randomToken = () => {
   const a = new Uint8Array(16);
   crypto.getRandomValues(a);
@@ -198,7 +208,32 @@ export function runCheck() {
     pet.daily_g = daily;
     evaluatePet(pet);
   }
+  const repo = memoryRepo(S);
+  for (const ev of dueReminders(S.care ?? [], at, settingsOf(repo).careLeadDays)) {
+    const pet = S.pets.find((p) => p.id === ev.pet_id);
+    notifyCustomer(ev.customer_id, { title: `${CARE_KINDS[ev.kind] ?? ev.title} de ${pet?.name ?? 'seu pet'}`, body: `Data cadastrada: ${new Date(ev.due_at).toLocaleDateString('pt-BR')}.`, url: '#/agenda', kind: 'care', petId: ev.pet_id });
+    ev.notified_at = at;
+  }
 }
+
+/** Aviso no app (e push simulado) para o tutor: pedido confirmado, lembrete, campanha... */
+function notifyCustomer(customerId, { title, body, url = '#/avisos', kind = 'info', petId = null }) {
+  S.alerts.unshift({ id: nextId('alert'), customer_id: customerId, pet_id: petId, kind, title, body, created_at: now(), read_at: null });
+  const c = S.customers.find((x) => x.id === customerId);
+  if (c && pushOn()) mail('push', { to: c.name, title, body, hash: url });
+}
+
+const hooks = {
+  notify: notifyCustomer,
+  restock(petId, kg) {
+    const pet = S.pets.find((p) => p.id === petId);
+    if (!pet) return;
+    const at = now();
+    Object.assign(pet, { stock_g: currentStockG(pet, at) + kg * 1000, stock_at: at });
+    evaluatePet(pet);
+  },
+  storeNotice: (body) => mail('whatsapp', { to: STORE.whatsapp, title: 'Aviso do app', body }),
+};
 
 export function advanceDays(days) {
   load();
@@ -378,8 +413,7 @@ const ROUTES = [
     const petIds = new Set(S.pets.filter((p) => p.customer_id === customer.id).map((p) => p.id));
     S.customers = S.customers.filter((c) => c.id !== customer.id);
     S.pets = S.pets.filter((p) => !petIds.has(p.id));
-    S.leads = S.leads.filter((l) => l.customer_id !== customer.id);
-    S.alerts = S.alerts.filter((a) => a.customer_id !== customer.id);
+    for (const [k, v] of Object.entries(S)) if (Array.isArray(v) && v.some((r) => r?.customer_id === customer.id)) S[k] = v.filter((r) => r.customer_id !== customer.id);
     for (const t of Object.keys(S.sessions)) if (S.sessions[t] === customer.id) delete S.sessions[t];
     return noContent();
   }],
@@ -474,6 +508,20 @@ const ROUTES = [
   }],
 ];
 
+// Rotas dos módulos comerciais (clube, vitrine, pedidos, pontos, agenda, painel): as mesmas tabelas do servidor.
+const toRegex = (path) => new RegExp(`^${path.replace(/:(\w+)/g, '(?<$1>[^/]+)')}$`);
+const FEATURES = [
+  ...tutorRoutes.map(([m, path, fn]) => [m, toRegex(path), fn, 'tutor']),
+  ...storeFeatureRoutes.map(([m, path, fn]) => [m, toRegex(`/store${path}`), fn, 'store']),
+];
+
+function runFeature(fn, kind, { params, query, body, headers }) {
+  const repo = memoryRepo(S);
+  const customer = kind === 'tutor' ? authed(headers).customer : (storeGuard(headers), undefined);
+  const out = fn({ repo, customer, body, query, params, now: now(), settings: settingsOf(repo), hooks, store: { name: STORE.name, whatsapp: STORE.whatsapp } });
+  return out && 'status' in out && Object.keys(out).every((k) => k === 'status' || k === 'body') ? out : { status: 200, body: out };
+}
+
 /** Processa uma chamada da API e devolve { status, body }. */
 export function handle(method, path, query, body, headers) {
   load();
@@ -482,6 +530,13 @@ export function handle(method, path, query, body, headers) {
       const match = m === method && re.exec(path);
       if (!match) continue;
       const result = fn({ params: match.slice(1), query, body: body ?? {}, headers, auth: () => authed(headers) });
+      save();
+      return result;
+    }
+    for (const [m, re, fn, kind] of FEATURES) {
+      const match = m === method && re.exec(path);
+      if (!match) continue;
+      const result = runFeature(fn, kind, { params: { ...match.groups }, query, body: body ?? {}, headers });
       save();
       return result;
     }
@@ -515,13 +570,21 @@ export function socialLogin(provider) {
 // ---------- cenários prontos ----------
 const LS_KEYS = ['apppet.token', 'petlee.onboarded', 'petlee.storekey', 'petlee.preview.push'];
 
-const THOR = { species: 'dog', breedId: 'labrador', name: 'Thor', color: 'Caramelo', ageYears: 3, ageMonths: 0, weightKg: 30, neutered: true, monthlyPurchaseKg: 10, dailyMode: 'recommended' };
-const MIA = { species: 'cat', breedId: 'siames', name: 'Mia', color: 'Cinza', ageYears: 2, ageMonths: 0, weightKg: 4, neutered: true, monthlyPurchaseKg: 1.8, dailyMode: 'recommended' };
-
 function maria() {
-  const c = { id: nextId('customer'), name: 'Maria Silva', email: DEMO_LOGIN.email, whatsapp: '5511999998888', consent_at: now(), pw: fakeHash(DEMO_LOGIN.password), created_at: now() };
+  const at = now() - 60 * DAY_MS;
+  const c = { id: nextId('customer'), name: 'Maria Silva', email: DEMO_LOGIN.email, whatsapp: '5511999998888', consent_at: at, pw: fakeHash(DEMO_LOGIN.password), created_at: at };
   S.customers.push(c);
   return c;
+}
+
+/** Maria com Thor e Mia e compras na loja. Os avisos de ração saem como sairiam de verdade. */
+function mariaWithPets(c, thorDays, miaDays) {
+  const { thor, mia } = seedDemoTutor(memoryRepo(S), c.id, now(), { thorDays, miaDays });
+  for (const id of [thor.id, mia.id]) {
+    const pet = S.pets.find((p) => p.id === id);
+    pet.alert_state = 'ok';
+    evaluatePet(pet);
+  }
 }
 
 /** Zera o estado e monta o cenário pedido. Devolve a rota inicial sugerida (ou undefined). */
@@ -531,6 +594,10 @@ export function applyScenario(name) {
     return undefined;
   }
   S = blank();
+  // a loja de exemplo (catálogo, clientes, pedidos, agenda) existe em todos os cenários, para o painel
+  const repo = memoryRepo(S);
+  seedStore(repo, now());
+  seedCustomers(repo, now());
   const ls = localStorage;
   const set = (k, v) => { try { ls.setItem(k, v); } catch { /* ok */ } };
   try { LS_KEYS.forEach((k) => ls.removeItem(k)); } catch { /* ok */ }
@@ -539,7 +606,7 @@ export function applyScenario(name) {
   if (name === 'zero') {
     // conta nova: boas-vindas, sem nada cadastrado
   } else if (name === 'login') {
-    maria();
+    mariaWithPets(maria(), 21, 20);
     set('petlee.onboarded', '1');
     hash = '#/entrar';
   } else if (name === 'social') {
@@ -553,14 +620,7 @@ export function applyScenario(name) {
     const c = maria();
     set('petlee.onboarded', '1');
     set('apppet.token', startSession(c.id));
-    if (name !== 'logado-vazio') {
-      createPet(c, { ...THOR, stockKg: name === 'acabou' ? 0 : 8 });
-      createPet(c, { ...MIA, stockKg: name === 'acabando' ? 0.18 : 1.2 });
-    }
-    if (name === 'acabando' || name === 'acabou') {
-      // a loja já recebeu o aviso; o cliente ainda não abriu o app
-      hash = '#/';
-    }
+    if (name !== 'logado-vazio') mariaWithPets(c, name === 'acabou' ? 0 : 21, name === 'acabando' ? 3 : 20);
   }
   save();
   return hash;

@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';
+import { ddl } from './features/schema.js';
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS customers (
@@ -116,7 +117,7 @@ CREATE TABLE IF NOT EXISTS settings (
 );
 `;
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 /** v1 -> v2: login por senha/social (WhatsApp e aceite deixam de ser obrigatórios) e rotina de refeições. */
 function migrateV1(db) {
@@ -158,6 +159,7 @@ export function openDatabase(file) {
 
   db.pragma('foreign_keys = ON');
   db.exec(SCHEMA);
+  db.exec(ddl()); // v3: clube, vitrine, pedidos, pontos, agenda e campanhas (só cria o que falta)
   db.pragma(`user_version = ${SCHEMA_VERSION}`);
   return db;
 }

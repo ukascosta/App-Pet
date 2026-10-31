@@ -108,6 +108,8 @@ export async function register({ app, navigate }) {
             ${field('password', 'Senha', control({ name: 'password', type: 'password', icon: 'lock', placeholder: 'Mínimo de 8 caracteres', autocomplete: 'new-password', action: eyeToggle() }))}
             <div class="strength" data-level="0" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
           </div>
+          <details><summary>${raw(icon('users', 18))}Tenho um código de indicação</summary>
+            ${field('referralCode', 'Código de quem indicou', control({ name: 'referralCode', placeholder: 'Ex.: PET4XQ', autocomplete: 'off' }))}</details>
           <label class="check">
             <input type="checkbox" name="consent" />
             <span class="small">Autorizo a loja <b>${app.config.store.name}</b> a falar comigo pelo WhatsApp para oferecer ração quando a do meu pet estiver acabando. Posso apagar meu cadastro quando quiser.</span>
@@ -136,6 +138,7 @@ export async function register({ app, navigate }) {
               whatsapp: form.whatsapp.value,
               password: form.password.value,
               consent: form.consent.checked,
+              referralCode: form.referralCode.value.trim() || undefined,
             });
             setToken(res.token);
             markOnboarded();

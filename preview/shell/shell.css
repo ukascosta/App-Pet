@@ -67,6 +67,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .device__wrap { flex: none; }
 .phone { padding: 14px; background: var(--ink); border-radius: 52px; box-shadow: 0 30px 60px rgba(17, 17, 17, 0.28), inset 0 0 0 2px #333; }
 .phone iframe { display: block; border: 0; background: #fff6ec; border-radius: 38px; }
+.shell--desk .stage { grid-template-columns: 250px minmax(0, 1fr) 290px; gap: 14px; }
+.phone--desk { padding: 0; border-radius: 14px; background: var(--card); overflow: hidden; box-shadow: 0 24px 50px rgba(17, 17, 17, 0.2), 0 0 0 1px var(--line); }
+.phone--desk iframe { border-radius: 14px; }
 .blocked { max-width: 360px; text-align: center; background: var(--card); border-radius: 20px; padding: 18px; box-shadow: var(--shadow); color: var(--ink-2); }
 
 /* painel direito */

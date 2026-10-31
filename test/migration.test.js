@@ -30,7 +30,7 @@ test('banco da versão anterior é migrado sem perder cadastros e pets', () => {
 
   const db = openDatabase(file);
   try {
-    assert.equal(db.pragma('user_version', { simple: true }), 2);
+    assert.equal(db.pragma('user_version', { simple: true }), 3);
     assert.deepEqual(db.prepare('SELECT name, email, whatsapp, password_hash, google_id FROM customers').get(), {
       name: 'Maria', email: 'maria@example.com', whatsapp: '5511999998888', password_hash: null, google_id: null,
     });
@@ -51,7 +51,7 @@ test('banco da versão anterior é migrado sem perder cadastros e pets', () => {
 
   // abrir de novo não migra outra vez
   const db2 = openDatabase(path.join(os.tmpdir(), `petlee-${process.pid}.db`));
-  assert.equal(db2.pragma('user_version', { simple: true }), 2);
+  assert.equal(db2.pragma('user_version', { simple: true }), 3);
   db2.close();
   fs.rmSync(path.join(os.tmpdir(), `petlee-${process.pid}.db`), { force: true });
 });

@@ -57,14 +57,29 @@ const SCREENS = [
     ['Ração acabando', { scenario: 'acabando', hash: '#/pet/2' }],
     ['Ração acabou', { scenario: 'acabou', hash: '#/pet/1' }],
   ]],
+  ['Loja, clube e agenda', [
+    ['Vitrine', { scenario: 'dois-pets', hash: '#/loja' }],
+    ['Minhas compras', { scenario: 'dois-pets', hash: '#/compras' }],
+    ['Clube Pet', { scenario: 'dois-pets', hash: '#/clube' }],
+    ['Pontos', { scenario: 'dois-pets', hash: '#/pontos' }],
+    ['Agenda de cuidados', { scenario: 'dois-pets', hash: '#/agenda' }],
+  ]],
   ['Avisos e conta', [
     ['Avisos vazios', { scenario: 'dois-pets', hash: '#/avisos' }],
     ['Avisos com alerta', { scenario: 'acabando', hash: '#/avisos' }],
     ['Conta', { scenario: 'dois-pets', hash: '#/conta' }],
   ]],
-  ['Loja', [
-    ['Painel: login', { scenario: 'acabando', doc: 'loja' }],
-    ['Painel: atendendo', { scenario: 'acabando', doc: 'loja', autoLogin: true }],
+  ['Painel da loja', [
+    ['Login', { scenario: 'acabando', doc: 'loja' }],
+    ['Dashboard', { scenario: 'acabando', doc: 'loja', autoLogin: true, hash: '#/painel' }],
+    ['Oportunidades', { scenario: 'acabando', doc: 'loja', autoLogin: true, hash: '#/oportunidades' }],
+    ['Clientes', { scenario: 'acabando', doc: 'loja', autoLogin: true, hash: '#/clientes' }],
+    ['Pedidos', { scenario: 'acabando', doc: 'loja', autoLogin: true, hash: '#/pedidos' }],
+    ['Produtos', { scenario: 'acabando', doc: 'loja', autoLogin: true, hash: '#/produtos' }],
+    ['Agenda', { scenario: 'acabando', doc: 'loja', autoLogin: true, hash: '#/agenda' }],
+    ['Clube', { scenario: 'acabando', doc: 'loja', autoLogin: true, hash: '#/clube' }],
+    ['Pontos e campanhas', { scenario: 'acabando', doc: 'loja', autoLogin: true, hash: '#/marketing' }],
+    ['Configurações', { scenario: 'acabando', doc: 'loja', autoLogin: true, hash: '#/config' }],
   ]],
 ];
 const TASKS = [
@@ -75,7 +90,11 @@ const TASKS = [
   ['t5', 'Recuperar a senha esquecida', 'Peça o link e abra o e-mail na aba Mensagens.', { scenario: 'login', hash: '#/senha/esqueci' }],
   ['t6', 'Entrar com o Google e completar o cadastro', 'Ficou claro por que pedimos o WhatsApp?', { scenario: 'login' }],
   ['t7', 'Avançar 7 dias e ver o aviso de ração acabando', 'Use a Viagem no tempo. O aviso chegou onde e quando esperava?', { scenario: 'dois-pets' }],
-  ['t8', 'Como loja: atender o cliente com ração acabando', 'Abra o painel, chame no WhatsApp e marque como vendido.', { scenario: 'acabando', doc: 'loja' }],
+  ['t8', 'Como loja: atender o cliente com ração acabando', 'Em Oportunidades, chame no WhatsApp e marque como vendido.', { scenario: 'acabando', doc: 'loja' }],
+  ['t9', 'Pedir pela vitrine um item sugerido para o Thor', 'Os produtos fizeram sentido para o pet? O preço do Clube ficou claro?', { scenario: 'dois-pets', hash: '#/loja' }],
+  ['t10', 'Agendar banho e tosa e cadastrar a vacina da Mia', 'Ficou claro que o app só lembra a data informada?', { scenario: 'dois-pets', hash: '#/agenda' }],
+  ['t11', 'Como loja: confirmar o pedido que chegou pelo app', 'Em Pedidos, confirme e veja os pontos e o aviso do cliente.', { scenario: 'dois-pets', doc: 'loja', autoLogin: true, hash: '#/pedidos' }],
+  ['t12', 'Como loja: ativar uma assinatura do Clube', 'Em Clube Pet, ative a assinatura pendente.', { scenario: 'dois-pets', doc: 'loja', autoLogin: true, hash: '#/clube' }],
 ];
 const TIME_STEPS = [[1, '+1 dia'], [3, '+3 dias'], [7, '+7 dias'], [14, '+14 dias'], [0, 'Hoje']];
 
@@ -107,6 +126,7 @@ function launch(boot = {}) {
   }
   closePanels();
   renderDocs();
+  fit();
   refresh();
 }
 
@@ -156,6 +176,7 @@ function renderSizes() {
 }
 
 function renderDocs() {
+  $('#sizes').hidden = currentDoc === 'loja';
   $('#docs').replaceChildren(
     ...[['app', 'App do tutor'], ['loja', 'Painel da loja']].map(([id, label]) => el('button', { type: 'button', textContent: label, 'aria-pressed': String(id === currentDoc), onclick: () => launch({ doc: id, autoLogin: false }) })),
   );
@@ -169,12 +190,17 @@ function fit() {
     wrap.style.cssText = phone.style.cssText = iframe.style.cssText = '';
     return;
   }
-  const { w, h } = SIZES[sizeId];
-  const bezel = 14;
+  const desk = currentDoc === 'loja';
+  phone.classList.toggle('phone--desk', desk);
+  $('#shell').classList.toggle('shell--desk', desk);
+  const roomW = $('.device').clientWidth - 8;
+  // o painel da loja é para computador: janela larga (mín. 1000 px), reduzida para caber
+  const { w, h } = desk ? { w: Math.max(1000, roomW), h: 760 } : SIZES[sizeId];
+  const bezel = desk ? 0 : 14;
   const fullW = w + bezel * 2;
   const fullH = h + bezel * 2;
   const room = innerHeight - $('.top').offsetHeight - $('.device__top').offsetHeight - 56;
-  const scale = Math.min(1, room / fullH);
+  const scale = Math.min(1, room / fullH, desk ? roomW / fullW : 1);
   phone.style.cssText = `width:${fullW}px;height:${fullH}px;transform:scale(${scale});transform-origin:top left`;
   wrap.style.cssText = `width:${fullW * scale}px;height:${fullH * scale}px`;
   iframe.style.cssText = `width:${w}px;height:${h}px`;

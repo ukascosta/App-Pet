@@ -5,7 +5,8 @@ App para o tutor saber **quando a ração do pet vai acabar** e para a **loja se
 - O **tutor** cria a conta (senha, Google ou Facebook) e cadastra o pet: raça, cor, idade, quanto compra de ração por mês e **quantas vezes por dia costuma alimentar**.
 - O app sugere **quanto o pet deve comer por dia**, **quantas refeições** e **em quais horários**, conforme a raça e a idade, e **desconta a ração sozinho**, todos os dias.
 - Quando faltam poucos dias (padrão: 7), o app **avisa o tutor** (no app, push e e-mail) e **avisa a loja no WhatsApp**.
-- A loja tem um **painel** (`/loja`) com os clientes para atender e um botão "Chamar no WhatsApp" que já abre a conversa com a mensagem pronta.
+- O tutor também tem **vitrine inteligente**, **Clube Pet**, **programa de pontos** e **agenda de cuidados** (banho e tosa, vacina, vermífugo, antipulgas). O uso é mínimo: o que ele compra vem do histórico da loja, não precisa digitar.
+- A loja tem um **painel administrativo** (`/loja`) com dashboard, oportunidades de venda (com botão "Chamar no WhatsApp" e mensagem personalizada), clientes, pedidos, produtos, agenda, clube, pontos e campanhas.
 
 É um PWA: funciona no navegador do celular e pode ser instalado na tela inicial, sem loja de aplicativos.
 
@@ -16,12 +17,14 @@ Precisa de Node 22 ou mais novo.
 ```bash
 npm install
 cp .env.example .env     # ajuste o nome e o WhatsApp da loja
+npm run seed             # opcional: loja de demonstração num banco vazio
 npm start                # http://localhost:3000
-npm test                 # 77 testes
+npm test                 # 97 testes
 ```
 
 - App do tutor: `http://localhost:3000`
 - Painel da loja: `http://localhost:3000/loja` (senha = `STORE_ADMIN_PASSWORD`; se estiver vazia em desenvolvimento, uma senha é gerada e mostrada no terminal)
+- `npm run seed` cria um catálogo de 26 produtos, 9 clientes com 4 meses de histórico, assinaturas, agenda e campanhas, e a tutora `maria@example.com` / `senha12345` com Thor e Mia. Só roda em banco vazio.
 
 ## Pré-visualização interativa (sem instalar nada)
 
@@ -29,12 +32,12 @@ O arquivo [`preview/petlee-preview.html`](preview/petlee-preview.html) mostra o 
 
 Ele traz o app real dentro de uma moldura de celular, com uma API simulada no próprio arquivo (os cálculos de porção, rotina, estoque e avisos usam os mesmos módulos do servidor), e:
 
-- **Cenários prontos**: conta nova, já tenho conta, tutora com 2 pets, ração acabando, ração acabou, login com Google.
-- **Atalhos para cada tela**, inclusive a abertura animada e o painel da loja.
+- **Cenários prontos**: conta nova, já tenho conta, tutora com 2 pets, ração acabando, ração acabou, login com Google. Todos trazem a loja de exemplo (produtos, clientes, pedidos, agenda).
+- **Atalhos para cada tela**, inclusive a abertura animada, a vitrine, o clube, os pontos, a agenda e cada seção do painel da loja (mostrado numa janela de computador).
 - **Viagem no tempo**: avance 1, 3, 7 ou 14 dias e veja a ração diminuir e os avisos chegarem.
 - **Mensagens simuladas**: o WhatsApp que a loja receberia, os e-mails (com o link de "esqueci a senha" clicável) e os pushes. Nada é enviado de verdade.
 - **Login com Google e Facebook simulado** e três tamanhos de tela (320, 390 e 430 px).
-- **Roteiro de teste de usabilidade** com 8 tarefas e um bloco de anotações que pode ser baixado em `.txt`.
+- **Roteiro de teste de usabilidade** com 12 tarefas e um bloco de anotações que pode ser baixado em `.txt`.
 
 Os dados são fictícios e ficam só no navegador (as senhas ali **não** são protegidas: não digite senhas reais). Conta de exemplo: `maria@example.com` / `senha12345`; painel da loja: `loja123`.
 
@@ -42,7 +45,9 @@ Depois de mudar o app, gere o arquivo de novo com `npm run preview` (usa o `esbu
 
 ## Telas
 
-Abertura animada do logo · boas-vindas (3 slides) · entrar · criar conta · esqueci a senha · nova senha · completar cadastro (quem entra com Google/Facebook) · início · cadastro do pet em 4 passos (quem é, idade e peso, ração, rotina de refeições) · tela de sucesso · detalhe do pet · editar pet · avisos · conta (dados, senha, loja) · painel da loja.
+Abertura animada do logo · boas-vindas (3 slides) · entrar · criar conta · esqueci a senha · nova senha · completar cadastro (quem entra com Google/Facebook) · início · cadastro do pet em 4 passos (quem é, idade e peso, ração, rotina de refeições) · tela de sucesso · detalhe do pet · editar pet · avisos · conta (dados, senha, loja) · loja/vitrine · produto · minhas compras · Clube Pet · pontos · agenda de cuidados e agendamento.
+
+Painel da loja: dashboard · oportunidades · clientes e ficha do cliente · pedidos e venda no balcão · produtos · agenda · clube · pontos, campanhas, cupons e notificações · configurações.
 
 ## Visual
 
@@ -114,6 +119,22 @@ Escolha com `WHATSAPP_PROVIDER` no `.env`:
 
 No painel `/loja`, "Configuração → Enviar mensagem de teste" confere se o provedor está certo.
 
+### Clube, vitrine, pontos e agenda
+
+Ficam em `server/features/`, em módulos puros (sem Express nem SQLite) usados pelo servidor e pela pré-visualização:
+
+| Módulo | O que faz |
+| --- | --- |
+| `club.js` | Plano grátis (lembretes, pets, histórico, vitrine) e **Clube Pet** (R$ 19,90/mês): 5% em produtos, 10% em banho e tosa, frete grátis acima de R$ 150, pontos em dobro, ofertas exclusivas, presente de aniversário. A loja ativa a assinatura depois de receber. |
+| `showcase.js` | **Vitrine inteligente** pelo perfil de cada pet (espécie, porte, idade) e pelo **histórico de compras na loja**: para cada pet, complemento da próxima ração, kits, hora de repor, destaque, novidades, exclusivos do clube e "comprar de novo". |
+| `orders.js` | Orçamento e pedido: desconto do clube, cupom, pontos (50 pts = R$ 10), frete. Ao confirmar, baixa o estoque, dá os pontos e, se for ração, **repõe o estoque do pet sozinho**. |
+| `points.js` | 1 ponto a cada R$ 10 pagos (frete não conta), validade de 12 meses (consumo do mais antigo), indicação vale depois da primeira compra confirmada do indicado. Campanhas: pontos em dobro numa categoria, extras num produto, aniversário, cliente recorrente. |
+| `care.js` | Agenda: horários de banho e tosa cadastrados pela loja e lembretes de vacina, vermífugo e antipulgas **nas datas informadas pelo tutor ou profissional** (o app não indica produto nem dose). |
+| `opportunities.js` | CRM: ração acabando (prioridade alta), reposição prevista, cliente sumido há 45 dias (recuperação), antipulgas/vermífugo perto do fim, aniversário, cada um com mensagem de WhatsApp pronta e editável. |
+| `metrics.js` | Indicadores: tutores, pets, reposições próximas e atrasadas, pedidos pelo app, receita recorrente, assinantes, ticket médio, taxa de recompra e faturamento semanal. |
+
+As regras (descontos, valor do ponto, validade, frete, dias para recuperação) ficam em Configurações no painel.
+
 ## Login
 
 - **E-mail e senha**, sem código de verificação. As senhas são guardadas com `scrypt` (nunca em texto). Há limite de tentativas por IP e por e-mail.
@@ -141,6 +162,7 @@ Os botões aparecem sempre em desenvolvimento (para você ver o layout) e só em
 - **"WhatsApp ativo" é validado só pelo formato** (celular brasileiro com DDD ou número internacional com `+`). Confirmar que o número recebe mensagens exige enviar um código por WhatsApp; entra quando o provedor estiver definido.
 - **O e-mail não é confirmado no cadastro** (decisão de produto: sem código de verificação). O cuidado com a junção de contas acima reduz o risco, mas quem quiser garantir que o e-mail é do tutor precisará de uma confirmação por link.
 - **O login com Google e Facebook foi testado com provedores simulados**, não com contas reais: faltam as suas chaves para o teste final.
+- **Pagamento não é processado no app**: o pedido e a assinatura do clube são confirmados pela loja depois de receber (Pix, cartão ou no balcão).
 - **Uma loja por instalação.** Várias lojas pedem um cadastro de lojas e escolha na hora do registro.
 - **O servidor precisa ficar ligado** (a conferência é um temporizador interno) e o SQLite exige **disco persistente** e uma única instância. Evite hospedagem que "dorme" por inatividade.
 - **Push** só funciona com HTTPS. No iPhone, só depois de adicionar o app à Tela de Início.
@@ -162,7 +184,11 @@ server/
   services/oauth.js     login com Google e Facebook
   services/whatsapp.js  provedores (console / meta / webhook)
   routes/               API do tutor, da loja, pública e de autenticação
+  features/             clube, vitrine, pedidos, pontos, agenda, oportunidades e indicadores
+  seed.js               loja de demonstração (npm run seed)
 public/                 PWA (HTML + JS puro, sem build)
+  js/views/             telas do app do tutor
+  js/admin/             painel administrativo da loja
   brand/ fonts/ icons/  logo, fontes e ícones do app
   js/art.js, icons.js   ilustrações e ícones
 test/                   testes (node --test)

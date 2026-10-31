@@ -1,11 +1,12 @@
 // Service worker: deixa o app abrir offline (só a "casca") e mostra as notificações push.
-const CACHE = 'petlee-v2';
+const CACHE = 'petlee-v3';
 const SHELL = [
   '/', '/styles.css', '/manifest.webmanifest', '/icons/icon.svg',
   '/fonts/fredoka-latin-wght-normal.woff2', '/fonts/nunito-latin-wght-normal.woff2',
   '/js/main.js', '/js/api.js', '/js/util.js', '/js/ui.js', '/js/push.js', '/js/brand.js', '/js/icons.js', '/js/art.js',
   '/js/views/parts.js', '/js/views/onboarding.js', '/js/views/auth.js', '/js/views/home.js', '/js/views/pet.js',
   '/js/views/pet-form.js', '/js/views/alerts.js', '/js/views/account.js',
+  '/js/views/shop.js', '/js/views/orders.js', '/js/views/club.js', '/js/views/points.js', '/js/views/care.js',
 ];
 
 self.addEventListener('install', (event) => {
@@ -23,7 +24,7 @@ self.addEventListener('activate', (event) => {
 // Arquivos do app: rede primeiro (sempre a versão nova), cache se estiver sem internet. A API nunca é cacheada.
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  if (event.request.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/') || url.pathname === '/loja') return;
+  if (event.request.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/') || url.pathname === '/loja' || url.pathname === '/painel' || url.pathname.startsWith('/js/admin/')) return;
 
   event.respondWith(
     fetch(event.request)

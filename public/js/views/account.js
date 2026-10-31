@@ -44,6 +44,10 @@ export async function view({ app, navigate }) {
 
         <section class="card">
           <div class="menu">
+            <a class="menu__row" href="#/compras"><span class="badge-ic">${raw(icon('receipt', 20))}</span><div class="grow">Minhas compras<small>Histórico da loja e pedidos do app</small></div>${raw(icon('next', 18))}</a>
+            <a class="menu__row" href="#/clube"><span class="badge-ic badge-ic--dark">${raw(icon('crown', 20))}</span><div class="grow">Clube Pet<small>Descontos, frete grátis e pontos em dobro</small></div>${raw(icon('next', 18))}</a>
+            <a class="menu__row" href="#/pontos"><span class="badge-ic badge-ic--mint">${raw(icon('star', 20))}</span><div class="grow">Pontos e indicações<small>Troque por desconto e brindes</small></div>${raw(icon('next', 18))}</a>
+            <a class="menu__row" href="#/avisos"><span class="badge-ic">${raw(icon('bell', 20))}</span><div class="grow">Avisos<small>Ração, pedidos e lembretes</small></div>${raw(icon('next', 18))}</a>
             <a class="menu__row" href="#/avisos"><span class="badge-ic badge-ic--dark">${raw(icon('bell', 20))}</span><div class="grow">Avisos no celular<small>Ative ou desative na aba Avisos</small></div>${raw(icon('next', 18))}</a>
             ${storeLink
               ? html`<a class="menu__row" href="${storeLink}" target="_blank" rel="noopener"><span class="badge-ic badge-ic--mint">${raw(icon('store', 20))}</span><div class="grow">${app.config.store.name}<small>Falar com a loja no WhatsApp</small></div>${raw(icon('next', 18))}</a>`
