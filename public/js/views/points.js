@@ -36,7 +36,7 @@ export async function view({ refresh }) {
         </section>
 
         <section class="card card--soft stack">
-          <div class="row"><span class="ptile ptile--dark">${raw(icon('users', 24))}</span><div class="grow"><h2>Indique um amigo</h2><p class="small" style="color:#6b3200">Ganhe ${r.referralPoints} pontos quando ele fizer a primeira compra.</p></div></div>
+          <div class="row"><span class="ptile ptile--pink">${raw(icon('users', 24))}</span><div class="grow"><h2>Indique um amigo</h2><p class="small" style="color:#6b3200">Ganhe ${r.referralPoints} pontos quando ele fizer a primeira compra.</p></div></div>
           <div class="row"><span class="code grow" style="text-align:center">${pts.referralCode}</span><button class="iconbtn" data-copy aria-label="Copiar código">${raw(icon('copy', 20))}</button></div>
           ${pts.referrals ? html`<p class="small">${pts.referrals} ${pts.referrals === 1 ? 'amigo usou' : 'amigos usaram'} seu código.</p>` : ''}
         </section>

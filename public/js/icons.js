@@ -74,8 +74,8 @@ export const facebookLogo = (size = 22) =>
 
 // Ícone e cor de cada categoria de produto (vitrine e painel).
 export const CATEGORY_ICON = {
-  racao: ['bag', 'orange'], petisco: ['bone', 'orange'], brinquedo: ['ball', 'mint'], higiene: ['drop', 'mint'], areia: ['litter', 'mint'],
-  sache: ['pouch', 'orange'], antipulgas: ['shield', 'dark'], vermifugo: ['pill', 'dark'], acessorio: ['bed', 'mint'], kit: ['gift', 'orange'], servico: ['scissors', 'dark'],
+  racao: ['bag', 'orange'], petisco: ['bone', 'butter'], brinquedo: ['ball', 'sky'], higiene: ['drop', 'mint'], areia: ['litter', 'lilac'],
+  sache: ['pouch', 'pink'], antipulgas: ['shield', 'mint'], vermifugo: ['pill', 'lilac'], acessorio: ['bed', 'lilac'], kit: ['gift', 'pink'], servico: ['scissors', 'sky'],
 };
 export const productTile = (p, size = 30, cls = '') => {
   const [ic, tone] = CATEGORY_ICON[p.category] ?? ['box', 'orange'];

@@ -7,17 +7,17 @@
 
 :root {
   /* fundo: branco puxado para o laranja bem clarinho */
-  --bg: #fff6ec;
-  --bg-deep: #ffebd6;
+  --bg: #fffaf5; /* quase branco, com um toque de pêssego */
+  --bg-deep: #fff1e3;
   --card: #ffffff;
 
   --ink: #111111;
   --ink-2: #4a433c;
   --ink-3: #6f665d;
-  --line: #f4e4d1;
+  --line: #f6e9db;
 
   /* laranja: cor principal */
-  --orange-50: #fff6ec;
+  --orange-50: #fffaf5;
   --orange-100: #ffe8d1;
   --orange-200: #ffd4a8;
   --orange-300: #ffb866;
@@ -29,6 +29,16 @@
   --mint: #27d6af;
   --mint-100: #d3f7ee;
   --mint-ink: #0a7a62;
+
+  /* tons pastel de apoio (fundos de ícones, avatares e selos); os textos usam as versões -ink */
+  --pink-100: #ffe2e8;
+  --pink-ink: #a02d57;
+  --lilac-100: #ece6ff;
+  --lilac-ink: #5a45b0;
+  --sky-100: #dcefff;
+  --sky-ink: #1d5f98;
+  --butter-100: #fff3c4;
+  --butter-ink: #7a5700;
 
   --black: #111111;
   --danger: #e5484d;
@@ -156,7 +166,7 @@ input[type='time'].input { text-align: center; font-family: var(--font-display);
 
 .species { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .species button { border: 0; background: var(--card); border-radius: var(--r-lg); padding: 16px 8px 14px; display: grid; justify-items: center; gap: 8px; font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; box-shadow: inset 0 0 0 2px var(--line); }
-.species button svg { height: 74px; width: auto; }
+.species button svg { height: 74px; width: 74px; color: #2b2622; }
 .species button[aria-pressed='true'] { background: var(--orange-100); box-shadow: inset 0 0 0 3px var(--orange); }
 
 .breed-list { list-style: none; margin: 8px 0 0; padding: 6px; max-height: 250px; overflow: auto; border-radius: var(--r-md); background: var(--card); box-shadow: inset 0 0 0 2px var(--line); }
@@ -193,10 +203,14 @@ details[open] > summary .ic { transform: rotate(90deg); }
 .badge--low { background: var(--orange-100); color: var(--orange-ink); }
 .badge--empty { background: var(--danger-100); color: var(--danger-ink); }
 
-.pet-av { display: block; flex: none; width: 60px; height: 60px; border-radius: 20px; background: var(--orange-100); overflow: hidden; padding: 9px 7px 0; }
-.pet-av--cat { background: var(--mint-100); }
+.pet-av { display: grid; place-items: center; flex: none; width: 60px; height: 60px; border-radius: 22px; background: var(--orange-100); color: #2b2622; padding: 8px; }
+.pet-av.tone-1 { background: var(--mint-100); }
+.pet-av.tone-2 { background: var(--lilac-100); }
+.pet-av.tone-3 { background: var(--butter-100); }
+.pet-av.tone-4 { background: var(--sky-100); }
+.pet-av.tone-5 { background: var(--pink-100); }
 .pet-av svg { display: block; width: 100%; height: 100%; }
-.pet-av--lg { width: 84px; height: 84px; border-radius: 28px; padding: 12px 9px 0; }
+.pet-av--lg { width: 84px; height: 84px; border-radius: 30px; padding: 11px; }
 
 .bar { height: 10px; border-radius: 99px; background: var(--line); overflow: hidden; }
 .bar > i { display: block; height: 100%; width: calc(var(--p) * 100%); border-radius: inherit; background: var(--mint); transition: width 0.7s ease; }
@@ -354,6 +368,10 @@ details[open] > summary .ic { transform: rotate(90deg); }
 /* ---------- loja, clube, pontos e agenda ---------- */
 .ptile { display: grid; place-items: center; flex: none; width: 56px; height: 56px; border-radius: 18px; background: var(--orange-100); color: var(--orange-ink); }
 .ptile--mint { background: var(--mint-100); color: var(--mint-ink); }
+.ptile--pink { background: var(--pink-100); color: var(--pink-ink); }
+.ptile--lilac { background: var(--lilac-100); color: var(--lilac-ink); }
+.ptile--sky { background: var(--sky-100); color: var(--sky-ink); }
+.ptile--butter { background: var(--butter-100); color: var(--butter-ink); }
 .ptile--dark { background: var(--black); color: var(--mint); }
 .ptile--lg { width: 96px; height: 96px; border-radius: 30px; }
 .ptile--sm { width: 40px; height: 40px; border-radius: 13px; }

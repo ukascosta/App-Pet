@@ -95,7 +95,7 @@ export async function view({ refresh }) {
   const data = await api.care();
   const booked = data.appointments.filter((a) => a.status === 'booked');
   const item = (ev) => html`<div class="careitem">
-    <span class="ptile ${ev.kind === 'banho_tosa' ? 'ptile--mint' : 'ptile--dark'}" style="width:46px;height:46px;border-radius:15px">${raw(icon(KIND_ICON[ev.kind] ?? 'calendar', 22))}</span>
+    <span class="ptile ${ev.kind === 'banho_tosa' ? 'ptile--mint' : 'ptile--lilac'}" style="width:46px;height:46px;border-radius:15px">${raw(icon(KIND_ICON[ev.kind] ?? 'calendar', 22))}</span>
     <div class="grow"><b>${ev.title}</b><div class="small muted">${ev.petName}${ev.repeatDays ? ` · repete a cada ${ev.repeatDays} dias` : ''}${ev.source === 'loja' ? ' · cadastrado pela loja' : ''}</div>
       ${ev.notes ? html`<div class="small muted">${ev.notes}</div>` : ''}
       <div class="row" style="margin-top:8px;gap:6px"><button class="btn btn--sm btn--dark" data-done="${ev.id}">${raw(icon('check', 16))}Feito</button><button class="btn btn--sm btn--ghost" data-del="${ev.id}" aria-label="Apagar lembrete">${raw(icon('trash', 16))}</button></div></div>
@@ -119,7 +119,7 @@ export async function view({ refresh }) {
         </section>
 
         ${data.productCycles.length ? html`<section class="card stack"><h2>Reposições previstas</h2><p class="small muted">Pela duração informada na embalagem do que você comprou na loja.</p>
-          ${data.productCycles.map((c) => html`<div class="row"><span class="ptile ptile--dark" style="width:42px;height:42px;border-radius:14px">${raw(icon('shield', 20))}</span><div class="grow"><b class="small">${c.name}</b><div class="small muted">Comprado em ${fmtDate(c.boughtAt)} · dura ${c.cycleDays} dias</div></div>
+          ${data.productCycles.map((c) => html`<div class="row"><span class="ptile ptile--mint" style="width:42px;height:42px;border-radius:14px">${raw(icon('shield', 20))}</span><div class="grow"><b class="small">${c.name}</b><div class="small muted">Comprado em ${fmtDate(c.boughtAt)} · dura ${c.cycleDays} dias</div></div>
             <span class="badge ${c.daysLeft <= 0 ? 'badge--late' : c.daysLeft <= 7 ? 'badge--soon' : ''}">${c.daysLeft <= 0 ? 'Venceu' : `${c.daysLeft} dias`}</span></div>`)}
           <a class="btn btn--soft btn--block" href="#/loja">Ver na loja</a></section>` : ''}
 

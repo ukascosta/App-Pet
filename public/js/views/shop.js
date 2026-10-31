@@ -135,7 +135,7 @@ export async function view({ app }) {
       </header>
       ${member
         ? html`<a class="card card--dark row" href="#/clube" style="text-decoration:none;margin-bottom:18px">${raw(icon('crown', 26))}<div class="grow"><b>Você é do Clube Pet</b><div class="muted small">Preço de clube já aplicado, frete grátis acima de R$ 150 e pontos em dobro.</div></div></a>`
-        : html`<a class="card card--soft row" href="#/clube" style="text-decoration:none;color:inherit;margin-bottom:18px"><span class="ptile ptile--dark">${raw(icon('crown', 26))}</span><div class="grow"><b>Clube Pet por ${brl(summary.clubPriceCents)}/mês</b><div class="small" style="color:#6b3200">5% em produtos, 10% no banho e tosa, frete grátis e pontos em dobro.</div></div>${raw(icon('next', 20))}</a>`}
+        : html`<a class="card card--soft row" href="#/clube" style="text-decoration:none;color:inherit;margin-bottom:18px"><span class="ptile ptile--butter">${raw(icon('crown', 26))}</span><div class="grow"><b>Clube Pet por ${brl(summary.clubPriceCents)}/mês</b><div class="small" style="color:#6b3200">5% em produtos, 10% no banho e tosa, frete grátis e pontos em dobro.</div></div>${raw(icon('next', 20))}</a>`}
       ${sections.length
         ? sections.map((s) => html`<section>
             <div class="section-title" style="margin-top:6px"><div><h2>${s.title}</h2>${s.subtitle ? html`<p class="small muted">${s.subtitle}</p>` : ''}</div></div>

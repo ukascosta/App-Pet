@@ -1,6 +1,7 @@
 // Ilustrações e avatares no estilo da marca: formas chapadas em preto, laranja e verde-menta.
 
 import { BRAND, catInner, dogInner } from './brand.js';
+import { CAT_FACES, DOG_FACES, FACES } from './faces.js';
 
 const O = BRAND.orange;
 const M = BRAND.mint;
@@ -40,17 +41,22 @@ export function coatFor(colorName) {
   return { fill, light: luminance(fill) > 0.55 };
 }
 
-/** Avatar: busto do pet com a cor do pelo e a coleira da marca. */
+const hash = (str) => [...String(str)].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
+export const TONES = 6; // fundos pastel: pêssego, menta, lilás, manteiga, céu, rosa
+
+/** Avatar: a carinha ilustrada (cão ou gato) sobre um fundo pastel. Cada pet mantém sempre a mesma carinha e cor. */
 export function petAvatar(pet, cls = '') {
-  const { fill, light } = coatFor(pet.color);
-  const inner = (pet.species === 'cat' ? catInner : dogInner)({ coat: fill, outline: light ? K : '' });
+  const h = hash(`${pet.name ?? ''}${pet.id ?? ''}`);
+  const faces = pet.species === 'cat' ? CAT_FACES : DOG_FACES;
+  const face = faces[h % faces.length];
+  const tone = (h >> 3) % TONES;
   const label = pet.species === 'cat' ? 'Gato' : 'Cachorro';
-  return `<span class="pet-av pet-av--${pet.species} ${cls}" role="img" aria-label="${label}"><svg viewBox="-30 -30 1758 2060">${inner}</svg></span>`;
+  return `<span class="pet-av tone-${tone} ${cls}" role="img" aria-label="${label}"><svg viewBox="0 0 400 400"><path fill="currentColor" fill-rule="evenodd" d="${FACES[face]}"/></svg></span>`;
 }
 
-/** Só a silhueta (sem fundo) para botões de escolha de espécie. */
-export const speciesMark = (species, coat = K) =>
-  `<svg viewBox="0 0 1698 2000" aria-hidden="true">${(species === 'cat' ? catInner : dogInner)({ coat })}</svg>`;
+/** Só a carinha (sem fundo) para os botões de escolha de espécie. */
+export const speciesMark = (species) =>
+  `<svg viewBox="0 0 400 400" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="${FACES[species === 'cat' ? 'cat1' : 'dog1']}"/></svg>`;
 
 // ---------- cenas ----------
 
