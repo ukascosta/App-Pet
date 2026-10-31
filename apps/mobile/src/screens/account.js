@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Badge, Button, Card, Chip, EmptyState, Header, Icon, Input, ListRow, Loading, Photo, Screen, Section, T, Tip, Toggle, colors, radius, space } from '../components/ui';
+import { Avatar, Badge, Button, Card, Chip, EmptyState, Header, Icon, Input, ListRow, Loading, Photo, Screen, Section, T, Tip, Toggle, colors, radius, space } from '../components/ui';
 import { useApp, useLoad } from '../lib/state';
 import { ago, firstName, range } from '../lib/format';
 import { INTERESTS, SCENARIOS } from '../../../../shared/demo.js';
+import { AVATARS } from '../../../../shared/brand.js';
 import { DESTINATIONS } from '../../../../shared/library.js';
 
 export function ProfileScreen({ navigation }) {
@@ -13,6 +14,7 @@ export function ProfileScreen({ navigation }) {
   const insets = useSafeAreaInsets();
   const [scenario, setSc] = useState(api.scenario?.());
   const [support24, setSupport24] = useState(false);
+  const [picking, setPicking] = useState(false);
   const logout = async () => {
     await api.logout();
     navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
@@ -20,16 +22,43 @@ export function ProfileScreen({ navigation }) {
   return (
     <Screen header={<Header title="Seu perfil" onBack={() => navigation.goBack()} />}>
       <View style={{ alignItems: 'center', marginTop: 8 }}>
-        <View style={{ width: 88, height: 88, borderRadius: 44, backgroundColor: colors.orange500, alignItems: 'center', justifyContent: 'center' }}>
-          <T v="h1" color={colors.ink}>
-            {firstName(user?.name).slice(0, 1)}
-          </T>
-        </View>
+        <Pressable onPress={() => setPicking(!picking)} accessibilityLabel="Trocar avatar" accessibilityRole="button">
+          <Avatar id={user?.preferences?.avatar} seed={user?.email} size={96} />
+          <View style={{ position: 'absolute', right: -2, bottom: -2, width: 32, height: 32, borderRadius: 16, backgroundColor: colors.orange500, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: colors.bg }}>
+            <Icon name="pencil-simple" size={16} color={colors.ink} weight="fill" />
+          </View>
+        </Pressable>
         <T v="h2" style={{ marginTop: 12 }}>
           {user?.name}
         </T>
         <T v="small">{user?.email}</T>
       </View>
+      {picking ? (
+        <Card style={{ marginTop: space.lg }}>
+          <T v="bodyStrong">Escolhe a sua carinha</T>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 }}>
+            {AVATARS.map((a) => {
+              const on = (user?.preferences?.avatar || '') === a.id;
+              return (
+                <Pressable
+                  key={a.id}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: on }}
+                  accessibilityLabel={`Avatar ${a.id.replace('face-', '')}`}
+                  onPress={async () => {
+                    await api.updateMe({ preferences: { ...(user?.preferences || {}), avatar: a.id } });
+                    await loadMe();
+                    setPicking(false);
+                  }}
+                  style={{ padding: 3, borderRadius: 30, borderWidth: 2.5, borderColor: on ? colors.orange500 : 'transparent' }}
+                >
+                  <Avatar id={a.id} size={50} />
+                </Pressable>
+              );
+            })}
+          </View>
+        </Card>
+      ) : null}
 
       <Card padded={false} style={{ marginTop: space.xxl, paddingHorizontal: space.lg }}>
         <ListRow icon="suitcase-rolling" title="Minhas viagens" subtitle={`${trips.length} ${trips.length === 1 ? 'viagem' : 'viagens'}`} onPress={() => navigation.navigate('TripSwitcher')} />

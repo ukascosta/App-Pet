@@ -146,6 +146,8 @@ export function travelerRoutes(services) {
         interests: Array.isArray(p.interests) ? p.interests.filter((k) => interestKeys.has(k)) : [],
         restrictions: typeof p.restrictions === 'string' ? p.restrictions.slice(0, 500) : '',
         group: typeof p.group === 'string' ? p.group.slice(0, 200) : '',
+        // Avatar = uma das carinhas da marca (face-1 … face-18).
+        avatar: typeof p.avatar === 'string' && /^face-([1-9]|1[0-8])$/.test(p.avatar) ? p.avatar : '',
       };
       updates.preferences = JSON.stringify(clean);
     }

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 import { api } from './api.js';
-import { Icon, ToastProvider } from './ui.jsx';
+import { Avatar, Icon, Logo, ToastProvider } from './ui.jsx';
 import { TripsPage, TripPage } from './pages/trips.jsx';
 import { ImportPage } from './pages/import.jsx';
 import { DestinationsPage, PlacesPage, ResearchPage } from './pages/content.jsx';
@@ -83,7 +83,7 @@ function App() {
   return (
     <div className="shell">
       <aside className="sidebar">
-        <div className="logo">vagari<i /></div>
+        <div className="logo"><Logo width={150} /></div>
         <div className="logo-sub">Painel da equipe</div>
         {NAV.map(([group, items]) => (
           <React.Fragment key={group}>
@@ -98,8 +98,10 @@ function App() {
           </React.Fragment>
         ))}
         <div className="sidebar-foot">
-          <div className="strong">{user.name}</div>
-          <div>{user.email}</div>
+          <div className="row" style={{ gap: 10 }}>
+            <Avatar seed={user.email} size={38} />
+            <div><div className="strong">{user.name}</div><div style={{ fontSize: 11.5 }}>{user.email}</div></div>
+          </div>
         </div>
       </aside>
       <main className="main">

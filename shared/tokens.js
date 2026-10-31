@@ -1,39 +1,39 @@
 /**
  * Design system Vagari — tokens compartilhados entre o app (React Native) e o painel (web).
  *
- * Roxo predominante, app claro, laranja em pontos de destaque.
- * ⚠️ Cores provisórias: o Behance com a identidade não abriu neste ambiente.
- * Quando chegarem os códigos oficiais, troque só aqui.
+ * Paleta oficial Vagari: roxo principal #4B134B, roxo vibrante #6D1660, roxo vinho #54073D,
+ * roxo mais escuro #3C0328, laranja #F77A10, off-white #F7F2EE e branco.
+ * Roxo predominante, app claro, laranja em pontos de destaque. Troque as cores só aqui.
  */
 export const colors = {
   // Roxo Vagari (marca)
-  purple50: '#F5F1FF',
-  purple100: '#EBE3FF',
-  purple200: '#D6C6FF',
-  purple300: '#B89CFF',
-  purple400: '#9570F7',
-  purple500: '#7347EC',
-  purple600: '#5B2BD9', // cor principal: botões, títulos de destaque, aba ativa
-  purple700: '#4820B3',
-  purple800: '#35188A',
-  purple900: '#22104F',
+  purple50: '#F6ECF4',
+  purple100: '#EBD6E6',
+  purple200: '#D6AECD',
+  purple300: '#B97DAE',
+  purple400: '#944488',
+  purple500: '#6D1660', // roxo vibrante
+  purple600: '#4B134B', // cor principal: botões, títulos de destaque, aba ativa
+  purple700: '#54073D', // roxo vinho
+  purple800: '#3C0328', // roxo mais escuro
+  purple900: '#2A0220',
 
   // Laranja (acento — usar com moderação)
-  orange50: '#FFF3EA',
-  orange100: '#FFE2CC',
-  orange300: '#FFB37A',
-  orange500: '#FF7A1A', // acento: contagem regressiva, indicação Vagari, ícones duotone
-  orange600: '#E9620A',
+  orange50: '#FFF1E4',
+  orange100: '#FFE0C7',
+  orange300: '#FBAE6E',
+  orange500: '#F77A10', // laranja principal — acento: contagem regressiva, indicação Vagari, ícones duotone
+  orange600: '#D45F0A',
 
   // Neutros (levemente arroxeados para conversar com a marca)
-  ink: '#1D1636', // texto principal
-  inkSoft: '#4A4466',
-  muted: '#7A7494',
-  line: '#ECE8F5',
-  lineStrong: '#D9D3EA',
-  bg: '#F8F6FD', // fundo do app (claro)
+  ink: '#2A1027', // texto principal
+  inkSoft: '#5B4558',
+  muted: '#7A6475',
+  line: '#E9DFDA',
+  lineStrong: '#D8CBC5',
+  bg: '#F7F2EE', // fundo do app (claro)
   surface: '#FFFFFF',
-  surfaceAlt: '#F2EFFA',
+  surfaceAlt: '#F0E8E3',
 
   // Estados
   success: '#14A06B',
@@ -47,19 +47,21 @@ export const colors = {
 
   white: '#FFFFFF',
   black: '#000000',
-  overlay: 'rgba(29, 22, 54, 0.55)',
+  overlay: 'rgba(42, 16, 39, 0.55)',
   whatsapp: '#25D366',
 };
 
 /**
  * Tipografia.
- * - Títulos H1: Neulis (fonte oficial). Enquanto os arquivos licenciados não chegam,
- *   usamos Outfit (geométrica, mesma família visual) no lugar.
+ * - H1 e números grandes: Neulis (fonte oficial, com letras decorativas — arquivos em brand/fonts).
+ * - H2/H3: NeulisAlt (mesma família, letras mais limpas para leitura rápida).
  * - Demais textos: Plus Jakarta Sans — legível em telas pequenas, com personalidade.
  */
 export const fonts = {
-  display: 'Outfit_700Bold',
-  displaySemi: 'Outfit_600SemiBold',
+  display: 'Neulis_Bold',
+  displaySemi: 'Neulis_SemiBold',
+  displayAlt: 'NeulisAlt_Bold',
+  displayAltSemi: 'NeulisAlt_SemiBold',
   body: 'PlusJakartaSans_400Regular',
   bodyMedium: 'PlusJakartaSans_500Medium',
   bodySemi: 'PlusJakartaSans_600SemiBold',
@@ -68,7 +70,8 @@ export const fonts = {
 };
 
 export const webFonts = {
-  display: "'Neulis', 'Outfit', system-ui, sans-serif",
+  display: "'Neulis', system-ui, sans-serif",
+  displayAlt: "'Neulis Alt', 'Neulis', system-ui, sans-serif",
   body: "'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif",
 };
 
@@ -85,13 +88,13 @@ export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, xxxl: 32 }
 export const radius = { sm: 10, md: 14, lg: 20, xl: 28, pill: 999 };
 
 export const shadow = {
-  card: { shadowColor: '#3A1F8C', shadowOpacity: 0.08, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 3 },
-  float: { shadowColor: '#3A1F8C', shadowOpacity: 0.18, shadowRadius: 24, shadowOffset: { width: 0, height: 10 }, elevation: 8 },
+  card: { shadowColor: '#4B134B', shadowOpacity: 0.08, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 3 },
+  float: { shadowColor: '#4B134B', shadowOpacity: 0.18, shadowRadius: 24, shadowOffset: { width: 0, height: 10 }, elevation: 8 },
 };
 
 /** Gradientes usados nas capas enquanto as fotos reais não chegam (e por cima das fotos). */
 export const gradients = {
-  brand: ['#7347EC', '#4820B3'],
-  dusk: ['#5B2BD9', '#FF7A1A'],
-  photoFade: ['rgba(34,16,79,0)', 'rgba(34,16,79,0.78)'],
+  brand: ['#6D1660', '#54073D'],
+  dusk: ['#4B134B', '#F77A10'],
+  photoFade: ['rgba(42, 2, 32,0)', 'rgba(42, 2, 32,0.78)'],
 };

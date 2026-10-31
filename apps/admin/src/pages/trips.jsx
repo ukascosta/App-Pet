@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { api } from '../api.js';
 import { FormDrawer } from '../form.jsx';
-import { Badge, Btn, Cover, Empty, HowTo, Icon, Impact, ImpactTag, StatusBadge, Toggle, fmtDate, fmtDateTime, useToast } from '../ui.jsx';
+import { Avatar, Badge, Btn, Cover, Empty, HowTo, Icon, Impact, ImpactTag, StatusBadge, Toggle, fmtDate, fmtDateTime, useToast } from '../ui.jsx';
 import { DESTINATIONS, destinationName } from '@shared/library.js';
 import { useData, Audit } from './common.jsx';
 
@@ -407,7 +407,7 @@ function Travelers({ data, reload }) {
             <tbody>
               {data.travelers.map((x) => (
                 <tr key={x.id}>
-                  <td><div className="strong">{x.name}</div><div className="small muted">{x.email}</div></td>
+                  <td><div className="row"><Avatar seed={x.email} size={36} /><div><div className="strong">{x.name}</div><div className="small muted">{x.email}</div></div></div></td>
                   <td><Badge>{x.traveler_role}</Badge></td>
                   <td><Badge tone={INV[x.invitation_status][1]}>{INV[x.invitation_status][0]}</Badge></td>
                   <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>

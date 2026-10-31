@@ -1,6 +1,7 @@
 /** Componentes do painel (mesmos ícones Lucevias e tokens do app). */
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import ICONS from '@shared/icons.json';
+import { AVATARS, LOGO } from '@shared/brand.js';
 
 export function Icon({ name, size = 18, weight = 'regular', color = 'currentColor', accent = 'var(--orange500)', style }) {
   const icon = ICONS[name];
@@ -12,6 +13,24 @@ export function Icon({ name, size = 18, weight = 'regular', color = 'currentColo
       ))}
     </svg>
   );
+}
+
+/** Logo oficial da Vagari. `color` pinta a palavra (a estrela é sempre laranja). */
+export function Logo({ width = 140, color = '#F7F2EE' }) {
+  const b = LOGO.fullBox;
+  return (
+    <svg viewBox={b.join(' ')} width={width} role="img" aria-label="Vagari" style={{ display: 'block' }}>
+      <path d={LOGO.word} fill={color} />
+      <path d={LOGO.v} fill={color} />
+      <path d={LOGO.star} fill={LOGO.orange} />
+    </svg>
+  );
+}
+
+/** Carinha da Vagari como avatar (escolhida pela chave, ex.: e-mail). */
+export function Avatar({ seed = '', size = 36, id }) {
+  const a = AVATARS.find((x) => x.id === id) || AVATARS[[...String(seed)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) % AVATARS.length];
+  return <span className="avatar" style={{ width: size, height: size }} dangerouslySetInnerHTML={{ __html: a.xml }} />;
 }
 
 export const Btn = ({ children, icon, variant = '', sm, ...p }) => (
@@ -122,7 +141,7 @@ export function Empty({ icon = 'compass', title, children, action }) {
 
 /** Capa ilustrada do destino (mesma lógica do app). */
 export function Cover({ art, height = 160, children, style }) {
-  const a = art || { colors: ['#7347EC', '#35188A'], icon: 'globe-hemisphere-west' };
+  const a = art || { colors: ['#6D1660', '#3C0328'], icon: 'globe-hemisphere-west' };
   return (
     <div className="cover" style={{ height, background: `linear-gradient(135deg, ${a.colors[0]}, ${a.colors[1]})`, padding: 16, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', ...style }}>
       <Icon name={a.icon} size={height * 0.7} weight="duotone" color="#fff" accent="#fff" style={{ position: 'absolute', right: '4%', top: '6%', opacity: 0.18 }} />

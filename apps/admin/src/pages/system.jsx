@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { FormDrawer } from '../form.jsx';
-import { Badge, Btn, Empty, HowTo, Icon, Impact, ImpactTag, StatusBadge, Toggle, fmtDate, fmtDateTime, useToast } from '../ui.jsx';
+import { Avatar, Badge, Btn, Empty, HowTo, Icon, Impact, ImpactTag, Logo, StatusBadge, Toggle, fmtDate, fmtDateTime, useToast } from '../ui.jsx';
 import { Audit, useData } from './common.jsx';
 
 export function DashboardPage({ go, user }) {
@@ -275,7 +275,7 @@ export function TeamPage() {
           <tbody>
             {team.map((u) => (
               <tr key={u.id}>
-                <td><b>{u.name}</b><div className="small muted">{u.email}</div></td>
+                <td><div className="row"><Avatar seed={u.email} size={34} /><div><b>{u.name}</b><div className="small muted">{u.email}</div></div></div></td>
                 <td><Badge tone={u.role === 'admin' ? '' : 'soft-orange'}>{u.role === 'admin' ? 'Administrador' : 'Editor de conteúdo'}</Badge></td>
                 <td className="small">{u.last_login_at ? fmtDateTime(u.last_login_at) : 'Nunca entrou'}</td>
                 <td style={{ textAlign: 'right' }}>
@@ -434,7 +434,7 @@ export function LoginPage({ onDone }) {
   return (
     <div style={{ minHeight: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
       <div style={{ background: 'linear-gradient(160deg, var(--purple500), var(--purple800))', color: '#fff', padding: 48, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div className="logo" style={{ fontSize: 40, padding: 0 }}>vagari<i /></div>
+        <Logo width={220} />
         <div>
           <h1 style={{ fontSize: 44 }}>Painel da equipe</h1>
           <p style={{ opacity: 0.85, marginTop: 10, maxWidth: 420 }}>Aqui você monta e atualiza tudo que o viajante vê no app. Sem integrações, sem complicação.</p>

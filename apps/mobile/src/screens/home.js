@@ -2,7 +2,7 @@
 import React from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Badge, Button, Card, EmptyState, Icon, IconButton, Loading, Photo, ProgressRing, Section, T, Tip, colors, radius, space } from '../components/ui';
+import { Avatar, Badge, Button, Card, EmptyState, Icon, IconButton, Loading, Photo, ProgressRing, Section, T, Tip, colors, radius, space } from '../components/ui';
 import { useApp, useLoad } from '../lib/state';
 import { dayMonth, dueText, firstName, range, time, weekdayShort } from '../lib/format';
 import { DESTINATIONS } from '../../../../shared/library.js';
@@ -28,10 +28,8 @@ export function HomeScreen({ navigation }) {
       {/* Capa */}
       <Photo photo={d?.photo} art={d?.art} rounded={0} style={{ paddingTop: insets.top + 10, paddingHorizontal: space.xl, paddingBottom: 56, minHeight: 440 }} iconSize={230}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Pressable onPress={() => navigation.navigate('Profile')} accessibilityLabel="Seu perfil" style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.orange500, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.7)' }}>
-            <T v="title" color={colors.ink}>
-              {firstName(user?.name).slice(0, 1)}
-            </T>
+          <Pressable onPress={() => navigation.navigate('Profile')} accessibilityLabel="Seu perfil">
+            <Avatar id={user?.preferences?.avatar} seed={user?.email} size={46} ring="rgba(255,255,255,0.85)" />
           </Pressable>
           <Pressable onPress={() => trips.length > 1 && navigation.navigate('TripSwitcher')} style={{ flex: 1 }}>
             <T v="small" color="rgba(255,255,255,0.85)">

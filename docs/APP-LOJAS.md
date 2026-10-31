@@ -5,7 +5,7 @@ O app do viajante é feito em **Expo / React Native** (`apps/mobile`): um códig
 ## O que já está pronto
 
 - Todas as telas do MVP (abertura, apresentação, login, convite, interesses, Início, Roteiro, Explorar, Preparação, Docs, detalhes, perfil, ajuda, notificações, privacidade).
-- Design system Vagari (`shared/tokens.js`), ícones Lucevias, fontes Outfit + Plus Jakarta Sans embutidas.
+- Identidade aplicada: logo oficial (`brand/logo-vagari.svg`), paleta oficial e fonte Neulis nos títulos (`shared/tokens.js`), ícones Lucevias, texto em Plus Jakarta Sans, carinhas (`brand/faces.svg`) como avatares.
 - Modo demonstração com dados fictícios e um cliente da API real (`apps/mobile/src/lib/api.js`) com as mesmas respostas do servidor.
 - `app.json` com identificadores `br.com.vagari.app`, esquema `vagari://`, link universal para os convites (`https://app.vagari.com.br/convite/...`) e "Sign in with Apple" habilitado.
 
@@ -22,9 +22,8 @@ A Apple exige "Entrar com Apple" sempre que o app oferece login com Google — p
 | Item | Quem | Observação |
 |---|---|---|
 | Conta Apple Developer (US$ 99/ano) e Google Play Console (US$ 25 uma vez) | Vagari | Em nome da empresa (CNPJ), com D-U-N-S para a Apple. |
-| Logo em SVG, ícone do app e splash | Vagari → dev | Hoje há um wordmark provisório em texto. |
-| Arquivos da fonte **Neulis** + licença para app e web | Vagari | Hoje os títulos usam Outfit no lugar. |
-| Cores oficiais (HEX) | Vagari | Trocar só em `shared/tokens.js`. |
+| Licença da fonte **Neulis** para app e web | Vagari | Os arquivos estão em `brand/fonts` e vão dentro do app. Confirme que a licença cobre uso em app. |
+| Revisar ícone e splash gerados | Vagari | Gerados a partir do logo ("V" com avião sobre roxo `#4B134B`) em `apps/mobile/assets`. Se a marca tiver ícone próprio, é só substituir os PNGs. |
 | Fotos com licença | Vagari ou liberar download | Ver `docs/FOTOS.md`. |
 | Login Apple/Google no servidor | dev | Validar o token da Apple/Google e associar ao e-mail já cadastrado. |
 | Guardar a sessão com `expo-secure-store` e notificações push (`expo-notifications`) | dev | O servidor já tem notificações no app e por e-mail. |

@@ -16,7 +16,8 @@ Companheiro digital de viagem da Vagari: a equipe organiza e atualiza as informa
 server/        API (Node + Express + SQLite) — importação, permissões, histórico
 apps/mobile/   App do viajante — Expo / React Native (iOS e Android)
 apps/admin/    Painel da equipe — React + Vite (servido em /painel)
-shared/        Design system (tokens, ícones Lucevias), biblioteca de destinos e dados de demonstração
+brand/         Arquivos da identidade: logo, carinhas (avatares) e fontes Neulis
+shared/        Design system (tokens, logo, avatares, ícones Lucevias), biblioteca de destinos e demonstração
 scripts/       Geração de modelos, ícones, biblioteca e da prévia
 ```
 

@@ -3,21 +3,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Button, Chip, Icon, Input, Photo, T, colors, fonts, radius, space } from '../components/ui';
+import { Button, Chip, Icon, Input, Logo, Photo, T, colors, fonts, radius, space } from '../components/ui';
 import { useApp } from '../lib/state';
 import { firstName } from '../lib/format';
 import { INTERESTS } from '../../../../shared/demo.js';
 import { DESTINATIONS } from '../../../../shared/library.js';
-
-/** Marca provisória em texto até chegar o SVG oficial. */
-export function Logo({ size = 40, color = colors.white, dot = colors.orange500 }) {
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }} accessibilityLabel="Vagari">
-      <T style={{ fontFamily: fonts.display, fontSize: size, lineHeight: size * 1.05, color, letterSpacing: -size * 0.03 }}>vagari</T>
-      <View style={{ width: size * 0.2, height: size * 0.2, borderRadius: size, backgroundColor: dot, marginLeft: 2, marginBottom: size * 0.16 }} />
-    </View>
-  );
-}
 
 export function SplashScreen({ navigation }) {
   const scale = useRef(new Animated.Value(0.85)).current;
@@ -33,8 +23,8 @@ export function SplashScreen({ navigation }) {
   return (
     <LinearGradient colors={[colors.purple500, colors.purple700]} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Animated.View style={{ transform: [{ scale }], opacity: fade, alignItems: 'center' }}>
-        <Logo size={56} />
-        <T v="body" color="rgba(255,255,255,0.85)" style={{ marginTop: 10 }}>
+        <Logo width={210} />
+        <T v="body" color="rgba(255,255,255,0.85)" style={{ marginTop: 14 }}>
           sua viagem, do seu jeito
         </T>
       </Animated.View>
@@ -58,7 +48,7 @@ export function OnboardingScreen({ navigation }) {
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <Photo photo={d.photo} art={d.art} rounded={0} style={{ height: '62%', paddingTop: insets.top + 12, paddingHorizontal: space.xl }} iconSize={Math.min(width * 0.55, 220)}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Logo size={28} />
+          <Logo width={104} />
           <Pressable onPress={() => navigation.replace('Login')} hitSlop={10}>
             <T v="smallStrong" color={colors.white}>
               Pular
@@ -123,7 +113,7 @@ export function LoginScreen({ navigation }) {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: colors.bg }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <LinearGradient colors={[colors.purple500, colors.purple700]} style={{ paddingTop: insets.top + 24, paddingHorizontal: space.xxl, paddingBottom: 56 }}>
-          <Logo size={34} />
+          <Logo width={124} />
           <T v="h1" color={colors.white} style={{ marginTop: 28 }}>
             E aí, bora{'\n'}entrar? ✈️
           </T>
@@ -287,7 +277,7 @@ export function InviteScreen({ navigation, route }) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <Photo photo={d.photo} art={d.art} rounded={0} style={{ flex: 1, paddingTop: insets.top + 16, paddingHorizontal: space.xxl, paddingBottom: 48, justifyContent: 'space-between' }} iconSize={240}>
-        <Logo size={28} />
+        <Logo width={104} />
         <View>
           <T v="caption" color={colors.orange300}>
             Convite da Vagari

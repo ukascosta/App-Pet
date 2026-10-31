@@ -12,11 +12,11 @@ const bundleName = fs.readdirSync(jsDir).find((f) => f.endsWith('.js'));
 let js = fs.readFileSync(path.join(jsDir, bundleName), 'utf8');
 const used = [...new Set(js.match(/"\/assets\/[^"]+"/g) || [])].map((s) => s.slice(1, -1));
 // Fontes embutidas como data: URI (a prévia publicada só aceita fontes inline ou do Google Fonts).
-for (const u of used.filter((x) => x.endsWith('.ttf'))) {
+for (const u of used.filter((x) => /\.(ttf|otf)$/.test(x))) {
   const data = fs.readFileSync(path.join(src, u)).toString('base64');
-  js = js.replaceAll(`"${u}"`, `"data:font/ttf;base64,${data}"`);
+  js = js.replaceAll(`"${u}"`, `"data:font/${u.endsWith('.otf') ? 'otf' : 'ttf'};base64,${data}"`);
 }
-for (const u of used.filter((x) => !x.endsWith('.ttf'))) {
+for (const u of used.filter((x) => !/\.(ttf|otf)$/.test(x))) {
   const from = path.join(src, u);
   const rel = u.replace('/assets/node_modules/', 'assets/m/').replace(/^\//, '');
   if (fs.existsSync(from)) {

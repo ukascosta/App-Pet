@@ -7,8 +7,6 @@ import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-cont
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 // Só os pesos usados (importar o pacote inteiro embutiria todas as variações).
-import { Outfit_600SemiBold } from '@expo-google-fonts/outfit/600SemiBold';
-import { Outfit_700Bold } from '@expo-google-fonts/outfit/700Bold';
 import { PlusJakartaSans_400Regular } from '@expo-google-fonts/plus-jakarta-sans/400Regular';
 import { PlusJakartaSans_500Medium } from '@expo-google-fonts/plus-jakarta-sans/500Medium';
 import { PlusJakartaSans_600SemiBold } from '@expo-google-fonts/plus-jakarta-sans/600SemiBold';
@@ -89,8 +87,11 @@ const theme = { ...DefaultTheme, colors: { ...DefaultTheme.colors, background: c
 
 export default function App() {
   const [loaded, fontError] = useFonts({
-    Outfit_600SemiBold,
-    Outfit_700Bold,
+    // Neulis: fonte oficial dos títulos (brand/fonts)
+    Neulis_SemiBold: require('../assets/fonts/Neulis-SemiBold.otf'),
+    Neulis_Bold: require('../assets/fonts/Neulis-Bold.otf'),
+    NeulisAlt_SemiBold: require('../assets/fonts/NeulisAlt-SemiBold.otf'),
+    NeulisAlt_Bold: require('../assets/fonts/NeulisAlt-Bold.otf'),
     PlusJakartaSans_400Regular,
     PlusJakartaSans_500Medium,
     PlusJakartaSans_600SemiBold,

@@ -7,7 +7,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": { "image": "./assets/splash-icon.png", "resizeMode": "contain", "backgroundColor": "#5B2BD9" },
+    "splash": { "image": "./assets/splash-icon.png", "resizeMode": "contain", "backgroundColor": "#4B134B" },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "br.com.vagari.app",
@@ -16,7 +16,7 @@
     },
     "android": {
       "package": "br.com.vagari.app",
-      "adaptiveIcon": { "foregroundImage": "./assets/android-icon-foreground.png", "backgroundColor": "#5B2BD9" },
+      "adaptiveIcon": { "foregroundImage": "./assets/android-icon-foreground.png", "backgroundColor": "#4B134B" },
       "intentFilters": [
         { "action": "VIEW", "autoVerify": true, "data": [{ "scheme": "https", "host": "app.vagari.com.br", "pathPrefix": "/convite" }], "category": ["BROWSABLE", "DEFAULT"] }
       ]

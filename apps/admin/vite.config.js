@@ -9,5 +9,5 @@ export default defineConfig({
   base: './',
   resolve: { alias: { '@shared': path.resolve(__dirname, '../../shared') } },
   server: { fs: { allow: ['..', '../../shared'] }, proxy: { '/api': 'http://localhost:3000' } },
-  build: { chunkSizeWarningLimit: 2000 },
+  build: { chunkSizeWarningLimit: 2000, assetsInlineLimit: 200000 }, // fontes embutidas no CSS
 });

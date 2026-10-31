@@ -129,13 +129,16 @@ test('viajante ajusta só nome, telefone e preferências opcionais', async () =>
     const ana = await t.login('ana@example.com');
     const r = await t.call('PATCH', '/api/me', {
       token: ana,
-      body: { name: 'Ana S.', preferences: { interests: ['gastronomia', 'inventado'], restrictions: 'Vegetariana' }, notification_prefs: { email_reminders: false }, role: 'admin' },
+      body: { name: 'Ana S.', preferences: { interests: ['gastronomia', 'inventado'], restrictions: 'Vegetariana', avatar: 'face-7' }, notification_prefs: { email_reminders: false }, role: 'admin' },
     });
     assert.equal(r.status, 200);
     const me = await t.call('GET', '/api/me', { token: ana });
     assert.equal(me.body.user.name, 'Ana S.');
     assert.equal(me.body.user.role, 'traveler');
     assert.deepEqual(me.body.user.preferences.interests, ['gastronomia']);
+    assert.equal(me.body.user.preferences.avatar, 'face-7');
+    await t.call('PATCH', '/api/me', { token: ana, body: { preferences: { avatar: '<script>' } } });
+    assert.equal((await t.call('GET', '/api/me', { token: ana })).body.user.preferences.avatar, '');
     assert.equal(me.body.notification_prefs.email_reminders, false);
   } finally {
     await t.close();

@@ -4,11 +4,12 @@
  */
 import React, { useEffect, useRef } from 'react';
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, ImageBackground, Linking, Switch } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, { Path, Circle, SvgXml } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fonts, type, radius, shadow, space } from '../../../../shared/tokens.js';
 import ICONS from '../../../../shared/icons.json';
+import { AVATARS, LOGO } from '../../../../shared/brand.js';
 import { PHOTOS } from '../lib/photos';
 
 export { colors, fonts, radius, space, shadow };
@@ -27,11 +28,36 @@ export function Icon({ name, size = 22, color = colors.ink, weight = 'regular', 
   );
 }
 
+// ------------------------------------------------------------------ marca
+/** Logo oficial (brand/logo-vagari.svg). `color` pinta a palavra; a estrela fica sempre laranja. */
+export function Logo({ width = 120, color = colors.white, mark = false }) {
+  const box = mark ? LOGO.vBox : LOGO.fullBox;
+  const height = (width * box[3]) / box[2];
+  return (
+    <Svg width={width} height={height} viewBox={box.join(' ')} accessibilityLabel="Vagari">
+      {mark ? null : <Path d={LOGO.word} fill={color} />}
+      <Path d={LOGO.v} fill={color} />
+      <Path d={LOGO.star} fill={LOGO.orange} />
+    </Svg>
+  );
+}
+
+/** Carinhas da Vagari como avatar. `id` = "face-1" … "face-18"; sem id, escolhe uma pela chave. */
+export const avatarFor = (id, key = '') => AVATARS.find((a) => a.id === id) || AVATARS[[...String(key)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) % AVATARS.length];
+export function Avatar({ id, seed, size = 44, ring }) {
+  const a = avatarFor(id, seed);
+  return (
+    <View style={[{ width: size, height: size, borderRadius: size / 2, overflow: 'hidden' }, ring && { borderWidth: 2, borderColor: ring }]}>
+      <SvgXml xml={a.xml} width="100%" height="100%" />
+    </View>
+  );
+}
+
 // ------------------------------------------------------------------ texto
 const VARIANTS = {
   h1: { fontFamily: fonts.display, ...type.h1, color: colors.ink },
-  h2: { fontFamily: fonts.display, ...type.h2, color: colors.ink },
-  h3: { fontFamily: fonts.displaySemi, ...type.h3, color: colors.ink },
+  h2: { fontFamily: fonts.displayAlt, ...type.h2, color: colors.ink },
+  h3: { fontFamily: fonts.displayAltSemi, ...type.h3, color: colors.ink },
   title: { fontFamily: fonts.bodyBold, fontSize: 16, lineHeight: 21, color: colors.ink },
   body: { fontFamily: fonts.body, ...type.body, color: colors.inkSoft },
   bodyStrong: { fontFamily: fonts.bodySemi, ...type.body, color: colors.ink },
@@ -192,7 +218,7 @@ export function Photo({ photo, art, style, children, rounded = radius.xl, overla
   const a = art || { colors: [colors.purple500, colors.purple800], icon: 'globe-hemisphere-west' };
   const inner = (
     <>
-      {overlay ? <LinearGradient colors={['rgba(34,16,79,0)', 'rgba(34,16,79,0.15)', 'rgba(34,16,79,0.82)']} locations={[0.35, 0.55, 1]} style={StyleSheet.absoluteFill} /> : null}
+      {overlay ? <LinearGradient colors={['rgba(42, 2, 32,0)', 'rgba(42, 2, 32,0.15)', 'rgba(42, 2, 32,0.82)']} locations={[0.35, 0.55, 1]} style={StyleSheet.absoluteFill} /> : null}
       {children}
     </>
   );
