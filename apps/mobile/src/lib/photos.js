@@ -1,8 +1,11 @@
 /**
- * Fotos dos destinos e lugares. Cada arquivo em assets/photos/ entra aqui com require().
- * Enquanto uma foto não existe, o app mostra a capa ilustrada do destino (Photo.js).
- * Lista de fotos esperadas e licenças: docs/FOTOS.md.
+ * GERADO por scripts/build-photos.mjs — rode "npm run photos" depois de adicionar fotos.
+ * Cada arquivo de assets/photos entra aqui. Sem foto, o app mostra a capa ilustrada (ver docs/FOTOS.md).
  */
 export const PHOTOS = {
-  // 'paris.jpg': require('../../assets/photos/paris.jpg'),
+  'barcelona-sagrada.jpg': require('../../assets/photos/barcelona-sagrada.jpg'),
+  'londres-big-ben.jpg': require('../../assets/photos/londres-big-ben.jpg'),
+  'pequim-beihai.jpg': require('../../assets/photos/pequim-beihai.jpg'),
+  'roma-trevi.jpg': require('../../assets/photos/roma-trevi.jpg'),
+  'zanzibar-praias.jpg': require('../../assets/photos/zanzibar-praias.jpg'),
 };

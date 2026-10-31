@@ -15,7 +15,8 @@
     "templates": "node scripts/build-templates.js",
     "build:admin": "npm --prefix apps/admin run build",
     "preview:build": "node scripts/build-library.mjs && node scripts/build-showroom.mjs && scripts/build-app-preview.sh && npm --prefix apps/admin run build:demo",
-    "icons": "node scripts/build-icons.mjs node_modules/@luceviasicons/core/assets/icons.json"
+    "icons": "node scripts/build-icons.mjs node_modules/@luceviasicons/core/assets/icons.json",
+    "photos": "node scripts/build-photos.mjs"
   },
   "dependencies": {
     "better-sqlite3": "^12.11.1",
