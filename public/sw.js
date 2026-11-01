@@ -1,8 +1,8 @@
 // Service worker: deixa o app abrir offline (só a "casca") e mostra as notificações push.
-const CACHE = 'petlee-v4';
+const CACHE = 'petlee-v5';
 const SHELL = [
   '/', '/styles.css', '/manifest.webmanifest', '/icons/icon.svg',
-  '/fonts/fredoka-latin-wght-normal.woff2', '/fonts/nunito-latin-wght-normal.woff2',
+  '/fonts/plus-jakarta-sans-latin-wght-normal.woff2',
   '/js/main.js', '/js/api.js', '/js/util.js', '/js/ui.js', '/js/push.js', '/js/brand.js', '/js/icons.js', '/js/art.js', '/js/faces.js',
   '/js/views/parts.js', '/js/views/onboarding.js', '/js/views/auth.js', '/js/views/home.js', '/js/views/pet.js',
   '/js/views/pet-form.js', '/js/views/alerts.js', '/js/views/account.js',

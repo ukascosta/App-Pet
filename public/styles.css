@@ -2,8 +2,14 @@
    Cores da marca (do logo): preto #000, laranja #FF8801, verde-menta #27D6AF.
    Para ajustar o visual do app inteiro, mexa só nos tokens abaixo. */
 
-@font-face { font-family: 'Fredoka'; src: url('/fonts/fredoka-latin-wght-normal.woff2') format('woff2'); font-weight: 300 700; font-display: swap; }
-@font-face { font-family: 'Nunito'; src: url('/fonts/nunito-latin-wght-normal.woff2') format('woff2'); font-weight: 200 1000; font-display: swap; }
+/* Arlon (Marc Lohner) é fonte comercial: não vem junto do projeto. Se ela estiver instalada no aparelho, é usada;
+   para embarcar, coloque os .woff2 licenciados em public/fonts/ e acrescente um src: url() abaixo.
+   Enquanto isso, a Plus Jakarta Sans (OFL), de desenho parecido, assume. */
+@font-face { font-family: 'Arlon'; src: local('Arlon'), local('Arlon-Regular'); font-weight: 400; }
+@font-face { font-family: 'Arlon'; src: local('Arlon Medium'), local('Arlon-Medium'); font-weight: 500; }
+@font-face { font-family: 'Arlon'; src: local('Arlon SemiBold'), local('Arlon-SemiBold'); font-weight: 600; }
+@font-face { font-family: 'Arlon'; src: local('Arlon Bold'), local('Arlon-Bold'); font-weight: 700; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url('/fonts/plus-jakarta-sans-latin-wght-normal.woff2') format('woff2'); font-weight: 200 800; font-display: swap; }
 
 :root {
   /* fundo: branco puxado para o laranja bem clarinho */
@@ -62,8 +68,8 @@
   --grad-mint-soft: linear-gradient(145deg, #e2faf3 0%, #cdf5ea 100%);
   --grad-sky-soft: linear-gradient(145deg, #e8f4ff 0%, #ddd9ff 100%);
 
-  --font-display: 'Fredoka', ui-rounded, 'SF Pro Rounded', system-ui, sans-serif;
-  --font: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Arlon', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font: 'Arlon', 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -636,3 +642,7 @@ body::before {
 .prio--recuperacao { background: var(--grad-sun); }
 .plan--club .btn { background: #fff; box-shadow: 0 8px 18px rgba(120, 60, 0, 0.14); }
 .plan--club .ic, .plan--club h3 .ic { color: var(--ink); }
+
+/* etiquetas em pílula (como na referência) */
+.eyebrow { display: inline-flex; align-items: center; padding: 4px 11px; border-radius: 99px; background: rgba(255, 255, 255, 0.78); color: var(--ink-2); letter-spacing: 0.06em; font-size: 0.68rem; }
+h1, h2, h3, .display, .btn, .kpi b, .stat b, .tile b { font-weight: 700; }

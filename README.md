@@ -56,7 +56,7 @@ As cores vêm do logo: **preto `#000`, laranja `#FF8801` e verde-menta `#27D6AF`
 - **Todos os tokens** (cores, raios, sombras, fontes) ficam no começo de `public/styles.css`.
 - **Logo em vetor** (traçado a partir dos arquivos enviados): `public/brand/*.svg` e `public/js/brand.js`. Cada peça (cabeça, coleira, letras) é separada para animar a abertura.
 - **Ilustrações e ícones**: `public/js/art.js` e `public/js/icons.js`. Os avatares dos pets usam a **cor do pelo** informada no cadastro.
-- **Fontes**: Fredoka (títulos, parente das letras do logo) e Nunito (texto), ambas licença OFL, embarcadas em `public/fonts/`.
+- **Fontes**: **Arlon** (Marc Lohner) em todo o app. Ela é comercial e não acompanha o projeto: instalada no aparelho ela já é usada; para embarcar, coloque os `.woff2` licenciados em `public/fonts/` e acrescente o `src: url()` no `@font-face` de `public/styles.css`. Enquanto isso, a **Plus Jakarta Sans** (licença OFL, em `public/fonts/`) assume.
 - Sobre o laranja, o logo aparece em uma "pílula" clara para manter as cores oficiais legíveis (o verde-menta sobre laranja tem contraste de só 1,6:1).
 
 ## Como funciona

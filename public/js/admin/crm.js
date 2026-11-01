@@ -19,13 +19,13 @@ function revenueChart(weeks) {
   const label = (c) => (c >= 100000 ? `R$ ${(c / 100000).toLocaleString('pt-BR')} mil` : `R$ ${(c / 100).toLocaleString('pt-BR')}`);
   return html`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Faturamento por semana nas últimas 8 semanas, separado entre app e loja">
     ${[0, nice / 2, nice].map((t) => html`<line x1="${padL}" x2="${W - 4}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)" stroke-width="1" />
-      <text x="${padL - 8}" y="${y(t) + 4}" text-anchor="end" font-size="12" fill="var(--ink-3)" font-family="Nunito, sans-serif" font-weight="700">${label(t)}</text>`)}
+      <text x="${padL - 8}" y="${y(t) + 4}" text-anchor="end" font-size="12" fill="var(--ink-3)" font-family="Arlon, Plus Jakarta Sans, sans-serif" font-weight="700">${label(t)}</text>`)}
     ${weeks.map((w, i) => {
       const x = padL + i * bw + bw * 0.16;
       const bwi = bw * 0.68;
       return html`<rect x="${x}" y="${y(w.storeCents)}" width="${bwi}" height="${y(0) - y(w.storeCents)}" rx="3" fill="var(--mint)"><title>Loja: ${brl(w.storeCents)}</title></rect>
         <rect x="${x}" y="${y(w.storeCents + w.appCents)}" width="${bwi}" height="${y(0) - y(w.appCents)}" rx="3" fill="var(--orange)"><title>App: ${brl(w.appCents)}</title></rect>
-        ${i % 2 === 1 || i === weeks.length - 1 ? html`<text x="${x + bwi / 2}" y="${H - 8}" text-anchor="middle" font-size="12" fill="var(--ink-3)" font-family="Nunito, sans-serif" font-weight="700">${new Date(w.start).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</text>` : ''}`;
+        ${i % 2 === 1 || i === weeks.length - 1 ? html`<text x="${x + bwi / 2}" y="${H - 8}" text-anchor="middle" font-size="12" fill="var(--ink-3)" font-family="Arlon, Plus Jakarta Sans, sans-serif" font-weight="700">${new Date(w.start).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</text>` : ''}`;
     })}
   </svg>
   <div class="legend"><span><i style="background:var(--orange)"></i>Pedidos pelo app</span><span><i style="background:var(--mint)"></i>Vendas na loja</span></div>`;

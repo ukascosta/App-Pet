@@ -91,7 +91,7 @@ export function artPortion() {
     <g transform="translate(24 84) scale(.0706)">${dogInner()}</g>
     ${bowl(176, 172)}
     <g transform="translate(196 72)"><rect width="104" height="40" rx="20" fill="${K}"/><circle cx="21" cy="20" r="6" fill="${M}"/>
-      <text x="64" y="27" text-anchor="middle" fill="#fff" font-family="Fredoka, sans-serif" font-size="19" font-weight="600">380 g</text></g>
+      <text x="64" y="27" text-anchor="middle" fill="#fff" font-family="Arlon, Plus Jakarta Sans, sans-serif" font-size="19" font-weight="600">380 g</text></g>
     <path d="M247 114v22" stroke="${K}" stroke-width="3" stroke-dasharray="2 6" stroke-linecap="round"/>
     ${sparkle(48, 62, 1.1, M)}${sparkle(296, 150, 0.8, O)}${sparkle(150, 40, 0.7, O2)}`,
   );
@@ -115,8 +115,8 @@ export function artCountdown() {
       <circle r="48" fill="#fff"/>
       <circle r="48" fill="none" stroke="${O3}" stroke-width="13"/>
       <circle r="48" fill="none" stroke="${M}" stroke-width="13" stroke-linecap="round" stroke-dasharray="${(c * 0.72).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90)"/>
-      <text y="9" text-anchor="middle" fill="${K}" font-family="Fredoka, sans-serif" font-size="38" font-weight="600">12</text>
-      <text y="29" text-anchor="middle" fill="#6B625A" font-family="Nunito, sans-serif" font-size="13" font-weight="700">dias</text>
+      <text y="9" text-anchor="middle" fill="${K}" font-family="Arlon, Plus Jakarta Sans, sans-serif" font-size="38" font-weight="600">12</text>
+      <text y="29" text-anchor="middle" fill="#6B625A" font-family="Arlon, Plus Jakarta Sans, sans-serif" font-size="13" font-weight="700">dias</text>
     </g>
     ${sparkle(278, 52, 1, O)}${sparkle(46, 40, 0.8, M)}${sparkle(190, 226, 0.7, O2)}`,
   );
@@ -174,9 +174,9 @@ export function artEmptyAlerts() {
       <path d="M-18 66a18 14 0 0 0 36 0Z" fill="${O}"/>
       <path d="M-34 -4a34 34 0 0 1 22-30" fill="none" stroke="#3A3A3A" stroke-width="7" stroke-linecap="round"/>
     </g>
-    <text x="236" y="86" fill="${M}" font-family="Fredoka, sans-serif" font-size="30" font-weight="600">z</text>
-    <text x="256" y="64" fill="${M}" font-family="Fredoka, sans-serif" font-size="22" font-weight="600" opacity=".7">z</text>
-    <text x="272" y="46" fill="${M}" font-family="Fredoka, sans-serif" font-size="15" font-weight="600" opacity=".45">z</text>
+    <text x="236" y="86" fill="${M}" font-family="Arlon, Plus Jakarta Sans, sans-serif" font-size="30" font-weight="600">z</text>
+    <text x="256" y="64" fill="${M}" font-family="Arlon, Plus Jakarta Sans, sans-serif" font-size="22" font-weight="600" opacity=".7">z</text>
+    <text x="272" y="46" fill="${M}" font-family="Arlon, Plus Jakarta Sans, sans-serif" font-size="15" font-weight="600" opacity=".45">z</text>
     ${sparkle(64, 70, 1, O)}${sparkle(90, 196, 0.7, M)}`,
   );
 }
@@ -202,7 +202,7 @@ export function artError() {
     `${backdrop()}
     <g transform="translate(86 80) scale(.0775)">${dogInner()}</g>
     <g transform="translate(228 112)"><circle r="38" fill="${O}"/>
-      <text y="16" text-anchor="middle" fill="${K}" font-family="Fredoka, sans-serif" font-size="52" font-weight="600">?</text></g>
+      <text y="16" text-anchor="middle" fill="${K}" font-family="Arlon, Plus Jakarta Sans, sans-serif" font-size="52" font-weight="600">?</text></g>
     ${sparkle(60, 60, 0.9, M)}${sparkle(278, 196, 0.8, O2)}`,
   );
 }

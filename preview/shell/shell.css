@@ -3,7 +3,7 @@
   --bg: #fffdfb; --bg-deep: #fff1e3; --card: #fff; --ink: #111; --ink-2: #4a433c; --ink-3: #6f665d; --line: #f6e9db;
   --orange: #ff8801; --orange-100: #ffe8d1; --orange-ink: #9a4700; --mint: #27d6af; --mint-100: #d3f7ee; --mint-ink: #0a7a62;
   --shadow: 0 10px 28px rgba(140, 70, 0, 0.1), 0 2px 6px rgba(140, 70, 0, 0.06);
-  --display: 'Fredoka', ui-rounded, system-ui, sans-serif; --body: 'Nunito', system-ui, sans-serif;
+  --display: 'Arlon', 'Plus Jakarta Sans', system-ui, sans-serif; --body: 'Arlon', 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 * { box-sizing: border-box; }
 /* Identidade única e clara (a paleta do app é a da marca), por isso sem versão escura. */
