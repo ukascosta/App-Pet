@@ -307,7 +307,7 @@ export function TripSwitcherScreen({ navigation }) {
                     navigation.goBack();
                   }}
                 >
-                  <Photo photo={d?.photo} art={d?.art} style={[{ height: 120, padding: 16, justifyContent: 'flex-end' }, on && { borderWidth: 3, borderColor: colors.orange500 }]} rounded={radius.lg} iconSize={90}>
+                  <Photo photo={d?.photo || `dest:${d?.id}`} art={d?.art} style={[{ height: 120, padding: 16, justifyContent: 'flex-end' }, on && { borderWidth: 3, borderColor: colors.orange500 }]} rounded={radius.lg} iconSize={90}>
                     <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
                       <View>
                         <T v="h3" color={colors.white}>

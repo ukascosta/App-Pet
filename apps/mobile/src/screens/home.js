@@ -26,7 +26,7 @@ export function HomeScreen({ navigation }) {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ paddingBottom: 140 + insets.bottom }} showsVerticalScrollIndicator={false}>
       {/* Capa */}
-      <Photo photo={d?.photo} art={d?.art} rounded={0} style={{ paddingTop: insets.top + 10, paddingHorizontal: space.xl, paddingBottom: 56, minHeight: 440 }} iconSize={230}>
+      <Photo photo={d?.photo || `dest:${d?.id}`} art={d?.art} rounded={0} style={{ paddingTop: insets.top + 10, paddingHorizontal: space.xl, paddingBottom: 56, minHeight: 440 }} iconSize={230}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Pressable onPress={() => navigation.navigate('Profile')} accessibilityLabel="Seu perfil">
             <Avatar id={user?.preferences?.avatar} seed={user?.email} size={46} ring="rgba(255,255,255,0.85)" />
@@ -247,7 +247,7 @@ function NoTrip({ navigation, insets, inspiration, user, unread }) {
         <View style={{ gap: 12 }}>
           {(inspiration || []).slice(0, 6).map((d) => (
             <Pressable key={d.id} onPress={() => navigation.navigate('Destination', { id: d.id })}>
-              <Photo photo={d.photo} art={d.art} style={{ height: 160, padding: 16, justifyContent: 'flex-end' }} rounded={radius.lg} iconSize={110}>
+              <Photo photo={d.photo || `dest:${d.id}`} art={d.art} style={{ height: 160, padding: 16, justifyContent: 'flex-end' }} rounded={radius.lg} iconSize={110}>
                 <T v="h3" color={colors.white}>
                   {d.name}
                 </T>

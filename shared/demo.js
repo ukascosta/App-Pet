@@ -181,7 +181,7 @@ export function createMockApi({ scenario = 'before', now = () => Date.now() } = 
     maps_url: mapsUrl(p.address),
     official_url: p.url || null,
     tags: p.tags || [],
-    photo: p.photo || null,
+    photo: p.photo || `place:${p.id}`,
     art: dest(p.destination)?.art,
     latitude: p.lat,
     longitude: p.lng,
@@ -380,13 +380,13 @@ export function createMockApi({ scenario = 'before', now = () => Date.now() } = 
     // --- inspiração (biblioteca de destinos)
     async inspiration() {
       const cities = DESTINATIONS.filter((d) => d.tagline && (d.city || !DESTINATIONS.some((c) => c.parent === d.id)));
-      return delay({ destinations: cities.map((d) => ({ id: d.id, name: destinationName(d), country: d.country, tagline: d.tagline, photo: d.photo, art: d.art })) });
+      return delay({ destinations: cities.map((d) => ({ id: d.id, name: destinationName(d), country: d.country, tagline: d.tagline, photo: d.photo || `dest:${d.id}`, art: d.art })) });
     },
     async destination(id) {
       const d = dest(id);
       const ids = descendants(id);
       return delay({
-        destination: { id: d.id, name: destinationName(d), country: d.country, tagline: d.tagline, overview: d.overview, best_season: d.best_season, timezone: d.timezone, photo: d.photo, art: d.art },
+        destination: { id: d.id, name: destinationName(d), country: d.country, tagline: d.tagline, overview: d.overview, best_season: d.best_season, timezone: d.timezone, photo: d.photo || `dest:${d.id}`, art: d.art },
         places: PLACES.filter((p) => ids.has(p.destination)).map((p) => placeCard(p)),
         whatsapp_url: whatsapp(null, `Oi, Vagari! Tô sonhando com ${destinationName(d)} ✈️ Bora montar essa viagem?`),
       });

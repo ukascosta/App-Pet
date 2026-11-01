@@ -31,7 +31,7 @@ export function DestinationsPage({ go }) {
       <div className="grid g4" style={{ marginTop: 18 }}>
         {cities.map((d) => (
           <div key={d.id} className="card" style={{ padding: 0, overflow: 'hidden', cursor: 'pointer' }} onClick={() => setEditing(d)}>
-            <Cover art={DESTINATIONS.find((x) => x.id === d.id)?.art} height={140} style={{ borderRadius: 0 }}>
+            <Cover art={DESTINATIONS.find((x) => x.id === d.id)?.art} photo={`dest:${d.id}`} height={140} style={{ borderRadius: 0 }}>
               <span className="small" style={{ opacity: 0.85 }}>{d.country}</span>
               <h2>{d.name}</h2>
             </Cover>

@@ -87,7 +87,7 @@ export function ExploreScreen({ navigation }) {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -space.xl }} contentContainerStyle={{ paddingHorizontal: space.xl, gap: 12 }}>
             {(inspo.data?.destinations || []).map((d) => (
               <Pressable key={d.id} onPress={() => navigation.navigate('Destination', { id: d.id })} style={{ width: 160 }}>
-                <Photo photo={d.photo} art={d.art} style={{ height: 210, padding: 12, justifyContent: 'flex-end' }} rounded={radius.lg} iconSize={90}>
+                <Photo photo={d.photo || `dest:${d.id}`} art={d.art} style={{ height: 210, padding: 12, justifyContent: 'flex-end' }} rounded={radius.lg} iconSize={90}>
                   <T v="title" color={colors.white}>
                     {d.name}
                   </T>
@@ -242,7 +242,7 @@ export function DestinationScreen({ navigation, route }) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 130 + insets.bottom }} showsVerticalScrollIndicator={false}>
-        <Photo photo={d.photo} art={d.art} rounded={0} style={{ height: 460, justifyContent: 'flex-end', padding: space.xl, paddingBottom: 44 }} iconSize={240}>
+        <Photo photo={d.photo || `dest:${d.id}`} art={d.art} rounded={0} style={{ height: 460, justifyContent: 'flex-end', padding: space.xl, paddingBottom: 44 }} iconSize={240}>
           <T v="caption" color={colors.orange300}>
             {d.country}
           </T>

@@ -46,7 +46,7 @@ export function OnboardingScreen({ navigation }) {
   const d = DESTINATIONS.find((x) => x.id === s.dest);
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <Photo photo={d.photo} art={d.art} rounded={0} style={{ height: '62%', paddingTop: insets.top + 12, paddingHorizontal: space.xl }} iconSize={Math.min(width * 0.55, 220)}>
+      <Photo photo={d.photo || `dest:${d.id}`} art={d.art} rounded={0} style={{ height: '62%', paddingTop: insets.top + 12, paddingHorizontal: space.xl }} iconSize={Math.min(width * 0.55, 220)}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Logo width={104} />
           <Pressable onPress={() => navigation.replace('Login')} hitSlop={10}>
@@ -276,7 +276,7 @@ export function InviteScreen({ navigation, route }) {
   };
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <Photo photo={d.photo} art={d.art} rounded={0} style={{ flex: 1, paddingTop: insets.top + 16, paddingHorizontal: space.xxl, paddingBottom: 48, justifyContent: 'space-between' }} iconSize={240}>
+      <Photo photo={d.photo || `dest:${d.id}`} art={d.art} rounded={0} style={{ flex: 1, paddingTop: insets.top + 16, paddingHorizontal: space.xxl, paddingBottom: 48, justifyContent: 'space-between' }} iconSize={240}>
         <Logo width={104} />
         <View>
           <T v="caption" color={colors.orange300}>

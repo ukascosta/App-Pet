@@ -51,7 +51,7 @@ export function TripsPage({ go }) {
       <div className="grid g3">
         {trips.map((t) => (
           <div key={t.id} className="card" style={{ padding: 0, cursor: 'pointer', overflow: 'hidden' }} onClick={() => go(`viagem-${t.id}`)}>
-            <Cover art={art(t.destination_id)} height={130} style={{ borderRadius: 0 }}>
+            <Cover art={art(t.destination_id)} photo={`dest:${t.destination_id}`} height={130} style={{ borderRadius: 0 }}>
               <div className="row" style={{ justifyContent: 'space-between' }}>
                 <span className="small" style={{ opacity: 0.9, fontWeight: 700 }}>{t.id}</span>
                 <StatusBadge status={t.status} />
@@ -133,7 +133,7 @@ export function TripPage({ tripId, go }) {
       <button className="btn ghost sm" onClick={() => go('viagens')} style={{ marginBottom: 10 }}>
         <Icon name="arrow-left" /> Viagens
       </button>
-      <Cover art={art(t.destination_id)} height={190}>
+      <Cover art={art(t.destination_id)} photo={`dest:${t.destination_id}`} height={190}>
         <div className="row wrap" style={{ justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <div>
             <div className="row">
@@ -246,7 +246,7 @@ function Summary({ data, setTab, publish }) {
       <div>
         <div className="small strong muted" style={{ marginBottom: 8 }}>Como o viajante vê</div>
         <div className="phone">
-          <Cover art={art(t.destination_id)} height={190} style={{ borderRadius: 0 }}>
+          <Cover art={art(t.destination_id)} photo={`dest:${t.destination_id}`} height={190} style={{ borderRadius: 0 }}>
             <Badge tone="orange">Faltam {Math.max(0, Math.round((Date.parse(t.start_date) - Date.now()) / 86400000))} dias</Badge>
             <h2 style={{ marginTop: 6 }}>{t.name}</h2>
             <div className="small" style={{ opacity: 0.9 }}>{fmtDate(t.start_date)} a {fmtDate(t.end_date)}</div>

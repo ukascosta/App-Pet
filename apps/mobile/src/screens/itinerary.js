@@ -211,7 +211,7 @@ export function StayScreen({ navigation, route }) {
   const d = DESTINATIONS.find((x) => x.id === s.city_id) || DESTINATIONS.find((x) => x.city === s.city);
   return (
     <Screen padded={false} header={<Header transparent onBack={() => navigation.goBack()} />}>
-      <Photo photo={d?.photo} art={d?.art} rounded={0} style={{ height: 300, justifyContent: 'flex-end', padding: space.xl }} iconSize={180}>
+      <Photo photo={d?.photo || `dest:${d?.id}`} art={d?.art} rounded={0} style={{ height: 300, justifyContent: 'flex-end', padding: space.xl }} iconSize={180}>
         <Badge label={d ? d.city : 'Hospedagem'} tone="white" icon="map-pin-simple" />
         <T v="h1" color={colors.white} style={{ marginTop: 10 }}>
           {s.title || s.name}
@@ -244,7 +244,7 @@ export function ActivityScreen({ navigation, route }) {
   const d = DESTINATIONS.find((x) => x.id === (place?.destination || it.city_id));
   return (
     <Screen padded={false} header={<Header transparent onBack={() => navigation.goBack()} />}>
-      <Photo photo={place?.photo} art={d?.art} rounded={0} style={{ height: 320, justifyContent: 'flex-end', padding: space.xl }} iconSize={180}>
+      <Photo photo={place ? place.photo || `place:${place.id}` : `dest:${d?.id}`} art={d?.art} rounded={0} style={{ height: 320, justifyContent: 'flex-end', padding: space.xl }} iconSize={180}>
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <Badge label={it.category_label} tone="white" icon={CAT_ICON[it.category]} />
           {it.booking_status_label ? <Badge label={it.booking_status_label} tone={BOOKING_TONE[it.booking_status]} /> : null}

@@ -2,6 +2,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import ICONS from '@shared/icons.json';
 import { AVATARS, LOGO } from '@shared/brand.js';
+import { createPhotoResolver } from '@shared/photo-resolve.js';
+
+// Mesmas fotos do app (apps/mobile/assets/photos), escolhidas pelo mesmo critério.
+const PHOTO_URLS = Object.fromEntries(
+  Object.entries(import.meta.glob('../../mobile/assets/photos/*.{jpg,jpeg,png,webp}', { eager: true, query: '?url', import: 'default' })).map(([k, v]) => [k.split('/').pop(), v]),
+);
+const resolvePhoto = createPhotoResolver(Object.keys(PHOTO_URLS));
 
 export function Icon({ name, size = 18, weight = 'regular', color = 'currentColor', accent = 'var(--orange500)', style }) {
   const icon = ICONS[name];
@@ -139,12 +146,30 @@ export function Empty({ icon = 'compass', title, children, action }) {
   );
 }
 
-/** Capa ilustrada do destino (mesma lógica do app). */
-export function Cover({ art, height = 160, children, style }) {
+/**
+ * Capa com foto (mesmo critério do app): preenche a área com o menor zoom possível,
+ * centralizada, sem distorcer. `photo`: arquivo ou chave "dest:<id>" / "place:<id>".
+ */
+export function Cover({ art, photo, height = 160, children, style }) {
   const a = art || { colors: ['#6D1660', '#3C0328'], icon: 'globe-hemisphere-west' };
+  const name = resolvePhoto(photo || `art:${a.icon}:${a.colors.join()}`);
+  const url = name && PHOTO_URLS[name];
   return (
-    <div className="cover" style={{ height, background: `linear-gradient(135deg, ${a.colors[0]}, ${a.colors[1]})`, padding: 16, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', ...style }}>
-      <Icon name={a.icon} size={height * 0.7} weight="duotone" color="#fff" accent="#fff" style={{ position: 'absolute', right: '4%', top: '6%', opacity: 0.18 }} />
+    <div
+      className="cover"
+      style={{
+        height,
+        backgroundColor: a.colors[1],
+        backgroundImage: url ? `url(${url})` : `linear-gradient(135deg, ${a.colors[0]}, ${a.colors[1]})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        padding: 16,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        ...style,
+      }}
+    >
       {children}
     </div>
   );

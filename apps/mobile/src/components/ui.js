@@ -3,7 +3,7 @@
  * Tudo vem dos tokens em shared/tokens.js — mudou a marca, muda lá.
  */
 import React, { useEffect, useRef } from 'react';
-import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, ImageBackground, Linking, Switch } from 'react-native';
+import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, Image, Linking, Switch } from 'react-native';
 import Svg, { Path, Circle, SvgXml } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,6 +11,9 @@ import { colors, fonts, type, radius, shadow, space } from '../../../../shared/t
 import ICONS from '../../../../shared/icons.json';
 import { AVATARS, LOGO } from '../../../../shared/brand.js';
 import { PHOTOS } from '../lib/photos';
+import { createPhotoResolver } from '../../../../shared/photo-resolve.js';
+
+const resolvePhoto = createPhotoResolver(Object.keys(PHOTOS));
 
 export { colors, fonts, radius, space, shadow };
 
@@ -210,23 +213,27 @@ export function Section({ title, action, onAction, children, style }) {
 }
 
 /**
- * Foto grande (destino/lugar). Enquanto a foto real não chega, desenha uma capa
- * ilustrada com as cores do destino e um ícone grande — nunca fica um buraco cinza.
+ * Foto (destino/lugar). Sempre mostra uma foto real: se a do item ainda não existe, usa uma
+ * substituta (ver shared/photo-resolve.js). A foto PREENCHE a área com o menor zoom possível
+ * (resizeMode "cover"), centralizada, sem distorcer e sem ampliar além da resolução do arquivo.
+ * `photo` pode ser um arquivo ("paris.jpg") ou uma chave ("place:<id>", "dest:<id>").
  */
 export function Photo({ photo, art, style, children, rounded = radius.xl, overlay = true, iconSize = 140 }) {
-  const src = photo && PHOTOS[photo];
+  const name = resolvePhoto(photo || (art ? `art:${art.icon}:${(art.colors || []).join()}` : 'foto'));
+  const src = name && PHOTOS[name];
   const a = art || { colors: [colors.purple500, colors.purple800], icon: 'globe-hemisphere-west' };
   const inner = (
     <>
-      {overlay ? <LinearGradient colors={['rgba(42, 2, 32,0)', 'rgba(42, 2, 32,0.15)', 'rgba(42, 2, 32,0.82)']} locations={[0.35, 0.55, 1]} style={StyleSheet.absoluteFill} /> : null}
+      {overlay ? <LinearGradient colors={['rgba(42, 2, 32,0.38)', 'rgba(42, 2, 32,0)', 'rgba(42, 2, 32,0.72)']} locations={[0, 0.3, 1]} style={StyleSheet.absoluteFill} /> : null}
       {children}
     </>
   );
   if (src) {
     return (
-      <ImageBackground source={src} style={[{ overflow: 'hidden', borderRadius: rounded }, style]} resizeMode="cover">
+      <View style={[{ overflow: 'hidden', borderRadius: rounded, backgroundColor: colors.purple800 }, style]}>
+        <Image source={src} resizeMode="cover" style={styles.photoFill} accessibilityIgnoresInvertColors />
         {inner}
-      </ImageBackground>
+      </View>
     );
   }
   return (
@@ -430,6 +437,8 @@ export const styles = StyleSheet.create({
   badgeDotText: { fontFamily: fonts.bodyBold, fontSize: 10, color: colors.ink },
   card: { borderRadius: radius.lg, ...shadow.card },
   sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: space.md },
+  // width/height explícitos: sem isso a web usa o tamanho do arquivo e mostra só um pedaço ampliado.
+  photoFill: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
   artCircle: { position: 'absolute', backgroundColor: 'rgba(255,255,255,0.1)' },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space.lg, paddingBottom: 10, backgroundColor: colors.bg },
   row: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14 },
