@@ -7,17 +7,17 @@
 
 :root {
   /* fundo: branco puxado para o laranja bem clarinho */
-  --bg: #fffaf5; /* quase branco, com um toque de pêssego */
-  --bg-deep: #fff1e3;
+  --bg: #fffdfb; /* quase branco, com um sopro de pêssego */
+  --bg-deep: #fff7ee;
   --card: #ffffff;
 
   --ink: #111111;
   --ink-2: #4a433c;
   --ink-3: #6f665d;
-  --line: #f6e9db;
+  --line: #f8efe5;
 
   /* laranja: cor principal */
-  --orange-50: #fffaf5;
+  --orange-50: #fffdfb;
   --orange-100: #ffe8d1;
   --orange-200: #ffd4a8;
   --orange-300: #ffb866;
@@ -49,12 +49,18 @@
   --low: var(--orange);
   --empty: var(--danger);
 
-  --r-xl: 32px;
-  --r-lg: 24px;
+  --r-xl: 34px;
+  --r-lg: 26px;
   --r-md: 18px;
   --r-sm: 12px;
-  --shadow: 0 10px 28px rgba(140, 70, 0, 0.09), 0 2px 6px rgba(140, 70, 0, 0.06);
-  --shadow-lg: 0 18px 40px rgba(17, 17, 17, 0.22);
+  --shadow: 0 12px 30px rgba(255, 140, 30, 0.1), 0 2px 8px rgba(70, 45, 20, 0.05);
+  --shadow-lg: 0 20px 44px rgba(255, 140, 30, 0.2), 0 4px 12px rgba(70, 45, 20, 0.06);
+
+  /* degradês: laranja para amarelo alaranjado (principal) e versões suaves para fundos */
+  --grad-sun: linear-gradient(135deg, #ff8f1f 0%, #ffb02e 52%, #ffd25a 100%);
+  --grad-sun-soft: linear-gradient(145deg, #fff3e0 0%, #ffe9bf 55%, #ffe39a 100%);
+  --grad-mint-soft: linear-gradient(145deg, #e2faf3 0%, #cdf5ea 100%);
+  --grad-sky-soft: linear-gradient(145deg, #e8f4ff 0%, #ddd9ff 100%);
 
   --font-display: 'Fredoka', ui-rounded, 'SF Pro Rounded', system-ui, sans-serif;
   --font: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -540,3 +546,93 @@ body:has(.adm) #app { max-width: none; }
   .adm-main { padding: 18px 16px 50px; }
   .adm-head h1 { font-size: 1.4rem; }
 }
+
+
+/* =====================================================================
+   Tema leve (v2): fundo quase branco, degradês laranja→amarelo, brilhos
+   desfocados no lugar de círculos duros e pouco preto.
+   ===================================================================== */
+
+/* brilhos de fundo: gradientes radiais largos, sem borda, bem difusos */
+body::before {
+  content: ''; position: fixed; inset: -10% -10%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(46% 34% at 100% 2%, rgba(255, 178, 64, 0.34), transparent 72%),
+    radial-gradient(42% 32% at -6% 40%, rgba(39, 214, 175, 0.15), transparent 72%),
+    radial-gradient(48% 34% at 100% 92%, rgba(255, 160, 190, 0.18), transparent 72%),
+    radial-gradient(40% 30% at 12% 100%, rgba(190, 170, 255, 0.14), transparent 72%);
+  filter: blur(18px);
+}
+
+.btn { background: var(--grad-sun); box-shadow: 0 10px 22px rgba(255, 150, 30, 0.28); }
+.btn:hover { filter: brightness(1.04); }
+.btn--soft { background: var(--orange-100); box-shadow: none; }
+.btn--dark { background: #fff; color: var(--ink); box-shadow: var(--shadow); }
+.btn--ghost, .btn--line, .btn--danger { box-shadow: none; }
+.btn--line { box-shadow: inset 0 0 0 2px var(--orange-200); }
+.btn--on-dark { background: rgba(255, 255, 255, 0.72); color: var(--ink); box-shadow: none; }
+
+.chip[aria-pressed='true'], .seg2 button[aria-pressed='true'], .days button[aria-pressed='true'] { background: var(--grad-sun); color: var(--ink); }
+.check input:checked { background: var(--orange); }
+.dots i.on { background: var(--orange); }
+.steps i.done { background: var(--orange); }
+
+/* cartão de destaque: claro, com degradê e brilho suave (era preto) */
+.card--dark { background: var(--grad-sun-soft); color: var(--ink); box-shadow: var(--shadow-lg); }
+.card--dark .muted, .card--dark .eyebrow { color: var(--ink-2); opacity: 0.8; }
+.card--dark::before { right: -70px; top: -70px; width: 240px; height: 240px; background: radial-gradient(closest-side, rgba(255, 255, 255, 0.85), transparent); opacity: 1; }
+.ring .track { stroke: rgba(255, 140, 30, 0.16); }
+.ring--low .value { stroke: #ff8801; }
+.card--alert { box-shadow: 0 0 0 2px var(--orange-200), var(--shadow); }
+.card--empty { box-shadow: 0 0 0 2px #ffb3b6, var(--shadow); }
+.card--soft { background: var(--grad-sun-soft); }
+.card--mint { background: var(--grad-mint-soft); }
+.tile { background: var(--bg-deep); }
+
+/* barra de abas: vidro claro, aba ativa em degradê */
+.tabbar nav { background: rgba(255, 255, 255, 0.78); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); box-shadow: 0 14px 34px rgba(255, 140, 30, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.9) inset; }
+.tab { color: var(--ink-3); }
+.tab[aria-current='page'] { background: var(--grad-sun); box-shadow: 0 8px 18px rgba(255, 150, 30, 0.3); }
+.fab { box-shadow: 0 16px 34px rgba(255, 150, 30, 0.35); }
+
+.meal-chip--next { background: var(--grad-sun-soft); color: var(--ink); }
+.meal-chip--next small { color: var(--ink-3); }
+.meal-chip--next .t { background: #fff; color: var(--orange-ink); }
+.pill--dark { background: var(--grad-sun); color: var(--ink); }
+.pcard .lock { background: var(--grad-sun); color: var(--ink); }
+.pcard .flag { background: var(--mint-100); color: var(--mint-ink); }
+.avatar-init { background: var(--grad-sun); color: var(--ink); box-shadow: 0 8px 18px rgba(255, 150, 30, 0.28); }
+.ptile { background: var(--grad-sun-soft); }
+.ptile--mint { background: var(--grad-mint-soft); }
+.ptile--dark, .menu__row .badge-ic--dark { background: var(--grad-mint-soft); color: var(--mint-ink); }
+.ptile--pink { background: linear-gradient(145deg, #fff0f3, #ffdde6); }
+.ptile--lilac { background: linear-gradient(145deg, #f3efff, #e3dbff); }
+.ptile--sky { background: var(--grad-sky-soft); }
+.ptile--butter { background: linear-gradient(145deg, #fffbe3, #ffefa8); }
+.pet-av { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.7); }
+
+/* plano do clube e toast */
+.plan--club { background: var(--grad-sun); color: var(--ink); }
+.plan--club::after { right: -50px; top: -50px; width: 190px; height: 190px; background: radial-gradient(closest-side, rgba(255, 255, 255, 0.6), transparent); opacity: 1; }
+.plan--club .amount small { color: rgba(17, 17, 17, 0.62); }
+.plan--club li .ic { color: var(--ink); }
+.toast { background: rgba(255, 255, 255, 0.92); color: var(--ink); backdrop-filter: blur(14px); box-shadow: var(--shadow-lg); }
+
+/* entrada: degradê com brilhos desfocados */
+.auth-hero { background: radial-gradient(60% 70% at 95% 0%, rgba(255, 255, 255, 0.55), transparent 70%), radial-gradient(55% 60% at 0% 100%, rgba(255, 220, 120, 0.7), transparent 70%), var(--grad-sun); }
+.splash { background: radial-gradient(50% 36% at 90% 6%, rgba(255, 184, 77, 0.4), transparent 72%), radial-gradient(48% 34% at 0% 96%, rgba(39, 214, 175, 0.2), transparent 72%), radial-gradient(40% 30% at 100% 100%, rgba(255, 160, 190, 0.2), transparent 72%), var(--bg); }
+
+/* painel da loja: lateral clara */
+.adm-side { background: rgba(255, 255, 255, 0.72); color: var(--ink); backdrop-filter: blur(16px); box-shadow: 1px 0 0 var(--line), 12px 0 40px rgba(255, 140, 30, 0.07); }
+.adm-nav a { color: var(--ink-2); }
+.adm-nav a:hover { background: var(--orange-100); color: var(--ink); }
+.adm-nav a[aria-current='page'] { background: var(--grad-sun); box-shadow: 0 8px 18px rgba(255, 150, 30, 0.26); }
+.adm-count { background: var(--mint-100); color: var(--mint-ink); }
+.adm-out { color: var(--ink-3); }
+.adm-logo { background: var(--bg-deep); }
+.kpi--hot { background: var(--grad-sun-soft); color: var(--ink); }
+.kpi--hot span, .kpi--hot small { color: var(--ink-2); }
+.prio--complementar { background: var(--sky-100); color: var(--sky-ink); }
+.prio--recuperacao { background: var(--grad-sun); }
+.plan--club .btn { background: #fff; box-shadow: 0 8px 18px rgba(120, 60, 0, 0.14); }
+.plan--club .ic, .plan--club h3 .ic { color: var(--ink); }

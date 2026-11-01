@@ -24,7 +24,7 @@ export async function view({ refresh }) {
         ${status}
         <div class="plans">
           <section class="plan plan--club">
-            <div class="row"><span style="color:var(--orange)">${raw(icon('crown', 26))}</span><h3 class="grow">Clube Pet</h3>${club.member ? html`<span class="badge">Seu plano</span>` : ''}</div>
+            <div class="row"><span style="color:var(--ink)">${raw(icon('crown', 26))}</span><h3 class="grow">Clube Pet</h3>${club.member ? html`<span class="badge">Seu plano</span>` : ''}</div>
             <div class="amount">${brl(club.priceCents)} <small>/mês</small></div>
             ${list(club.benefits.club)}
             ${club.member || sub?.status === 'pending' ? '' : html`<button class="btn btn--block" style="margin-top:18px" data-subscribe>Quero assinar</button>`}
